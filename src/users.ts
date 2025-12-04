@@ -25,7 +25,7 @@ function saveUsers() {
 
 export function getUser(id: number): User {
   if (!users[id]) {
-    users[id] = { id, balance: 10000 };
+    users[id] = { id, balance: 10000, language: 'es' };
     saveUsers();
   }
   return users[id];
@@ -35,4 +35,11 @@ export function getUser(id: number): User {
 export function updateUser(user: User) {
     users[user.id] = user;
     saveUsers();
+}
+
+// Set user language
+export function setUserLanguage(id: number, language: string) {
+  const user = getUser(id);
+  user.language = language;
+  saveUsers();
 }

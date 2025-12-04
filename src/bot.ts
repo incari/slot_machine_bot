@@ -1,8 +1,12 @@
 import { Telegraf } from "telegraf";
-import "dotenv/config";
-
-import { getUser } from "./users";
+import { getUser, updateUser } from "./users";
 import { spinSlots, calculateReward } from "./game";
+import { t, Language } from "./translations";
+import { setUserLanguage } from "./users";
+import { getRandomUpgrades, getUpgradeById } from "./upgrades";
+import { ActiveUpgrade } from "./types";
+
+require("dotenv").config();
 
 const bot = new Telegraf(process.env.BOT_TOKEN!);
 
@@ -11,8 +15,10 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 bot.start((ctx) => {
   const user = getUser(ctx.from!.id);
+  const lang = user.language as Language;
+  
   ctx.reply(
-    `🎰 Bienvenido a la tragamonedas TON!\nTu balance: ${user.balance} TON\n\n*Elige tu apuesta:*`,
+    t(lang, 'start_welcome', { balance: user.balance }),
     {
         parse_mode: "Markdown",
         reply_markup: {
@@ -29,59 +35,390 @@ bot.start((ctx) => {
 });
 
 bot.help((ctx) => {
+  const user = getUser(ctx.from!.id);
+  const lang = user.language as Language;
+  
   ctx.reply(
-    "📜 *Lista de Comandos* 📜\n\n" +
-    "/start - Iniciar el bot y ver balance\n" +
-    "/balance - Ver tu saldo actual\n" +
-    "/spin <cantidad> - Girar la tragamonedas (ej: /spin 10)\n" +
-    "/help - Ver este mensaje de ayuda",
+    t(lang, 'help_title') +
+    t(lang, 'help_start') +
+    t(lang, 'help_balance') +
+    t(lang, 'help_buy') +
+    t(lang, 'help_info') +
+    t(lang, 'help_language') +
+    t(lang, 'help_spin') +
+    t(lang, 'help_help'),
     { parse_mode: "Markdown" }
   );
 });
 
-bot.telegram.setMyCommands([
-  { command: "start", description: "Iniciar bot" },
-  { command: "balance", description: "Ver saldo" },
-  { command: "spin", description: "Girar tragamonedas" },
-  { command: "help", description: "Ver ayuda" },
-]);
+// Set commands for each language
+const commandTranslations = {
+  en: [
+    { command: "start", description: "Start bot" },
+    { command: "balance", description: "View balance" },
+    { command: "shop", description: "Upgrade shop" },
+    { command: "buy", description: "Buy credits" },
+    { command: "info", description: "View odds" },
+    { command: "language", description: "Change language" },
+    { command: "spin", description: "Spin slot machine" },
+    { command: "help", description: "View help" },
+  ],
+  es: [
+    { command: "start", description: "Iniciar bot" },
+    { command: "balance", description: "Ver saldo" },
+    { command: "shop", description: "Tienda de mejoras" },
+    { command: "buy", description: "Comprar créditos" },
+    { command: "info", description: "Ver probabilidades" },
+    { command: "language", description: "Cambiar idioma" },
+    { command: "spin", description: "Girar tragamonedas" },
+    { command: "help", description: "Ver ayuda" },
+  ],
+  de: [
+    { command: "start", description: "Bot starten" },
+    { command: "balance", description: "Guthaben anzeigen" },
+    { command: "shop", description: "Upgrade-Shop" },
+    { command: "buy", description: "Credits kaufen" },
+    { command: "info", description: "Gewinnchancen anzeigen" },
+    { command: "language", description: "Sprache ändern" },
+    { command: "spin", description: "Spielautomat drehen" },
+    { command: "help", description: "Hilfe anzeigen" },
+  ],
+  it: [
+    { command: "start", description: "Avvia bot" },
+    { command: "balance", description: "Visualizza saldo" },
+    { command: "shop", description: "Negozio upgrade" },
+    { command: "buy", description: "Acquista crediti" },
+    { command: "info", description: "Visualizza probabilità" },
+    { command: "language", description: "Cambia lingua" },
+    { command: "spin", description: "Gira slot machine" },
+    { command: "help", description: "Visualizza aiuto" },
+  ],
+  fr: [
+    { command: "start", description: "Démarrer le bot" },
+    { command: "balance", description: "Voir le solde" },
+    { command: "shop", description: "Boutique d'améliorations" },
+    { command: "buy", description: "Acheter des crédits" },
+    { command: "info", description: "Voir les probabilités" },
+    { command: "language", description: "Changer de langue" },
+    { command: "spin", description: "Tourner la machine" },
+    { command: "help", description: "Voir l'aide" },
+  ],
+  ru: [
+    { command: "start", description: "Запустить бота" },
+    { command: "balance", description: "Посмотреть баланс" },
+    { command: "shop", description: "Магазин улучшений" },
+    { command: "buy", description: "Купить кредиты" },
+    { command: "info", description: "Посмотреть шансы" },
+    { command: "language", description: "Изменить язык" },
+    { command: "spin", description: "Крутить автомат" },
+    { command: "help", description: "Посмотреть помощь" },
+  ],
+};
+
+// Set commands for each language
+Object.entries(commandTranslations).forEach(([lang, commands]) => {
+  bot.telegram.setMyCommands(commands, { language_code: lang });
+});
+
+// Set default (English) for users with other languages
+bot.telegram.setMyCommands(commandTranslations.en);
+
+// Language selection command
+bot.command("language", (ctx) => {
+  const user = getUser(ctx.from!.id);
+  const lang = user.language as Language;
+  
+  ctx.reply(
+    t(lang, 'language_select'),
+    {
+      parse_mode: "Markdown",
+      reply_markup: {
+        inline_keyboard: [
+          [
+            { text: "🇬🇧 English", callback_data: "lang_en" },
+            { text: "🇪🇸 Español", callback_data: "lang_es" },
+          ],
+          [
+            { text: "🇩🇪 Deutsch", callback_data: "lang_de" },
+            { text: "🇮🇹 Italiano", callback_data: "lang_it" },
+          ],
+          [
+            { text: "🇫🇷 Français", callback_data: "lang_fr" },
+            { text: "🇷🇺 Русский", callback_data: "lang_ru" },
+          ],
+        ],
+      },
+    }
+  );
+});
+
+// Language selection handlers
+const languages: Record<string, Language> = {
+  lang_en: 'en',
+  lang_es: 'es',
+  lang_de: 'de',
+  lang_it: 'it',
+  lang_fr: 'fr',
+  lang_ru: 'ru',
+};
+
+Object.keys(languages).forEach((langKey) => {
+  bot.action(langKey, async (ctx) => {
+    const newLang = languages[langKey];
+    setUserLanguage(ctx.from!.id, newLang);
+    
+    await ctx.editMessageText(t(newLang, 'language_changed'), { parse_mode: "Markdown" });
+    ctx.answerCbQuery();
+  });
+});
+
+// Buy credits command
+bot.command("buy", (ctx) => {
+  const user = getUser(ctx.from!.id);
+  const lang = user.language as Language;
+  
+  ctx.reply(
+    t(lang, 'buy_title') + t(lang, 'buy_packages'),
+    {
+      parse_mode: "Markdown",
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: t(lang, 'buy_button_10'), callback_data: "buy_10" }],
+          [{ text: t(lang, 'buy_button_100'), callback_data: "buy_100" }],
+          [{ text: t(lang, 'buy_button_500'), callback_data: "buy_500" }],
+          [{ text: t(lang, 'buy_button_1000'), callback_data: "buy_1000" }],
+        ],
+      },
+    }
+  );
+});
+
+// Info command - show game odds
+bot.command("info", (ctx) => {
+  const user = getUser(ctx.from!.id);
+  const lang = user.language as Language;
+  
+  ctx.reply(
+    t(lang, 'info_title') +
+    t(lang, 'info_combinations') +
+    t(lang, 'info_cherry') +
+    t(lang, 'info_lemon') +
+    t(lang, 'info_star') +
+    t(lang, 'info_seven') +
+    t(lang, 'info_jackpot'),
+    { parse_mode: "Markdown" }
+  );
+});
 
 
 bot.command("balance", (ctx) => {
   const user = getUser(ctx.from!.id);
-  ctx.reply(`💰 Tu balance actual es: ${user.balance} TON`);
+  const lang = user.language as Language;
+  ctx.reply(t(lang, 'balance_current', { balance: user.balance }));
+});
+
+// Shop command - show 3 random upgrades
+bot.command("shop", (ctx) => {
+  const user = getUser(ctx.from!.id);
+  const lang = user.language as Language;
+  
+  // Generate 3 random upgrades if not already set
+  if (!user.shopOffers || user.shopOffers.length === 0) {
+    const randomUpgrades = getRandomUpgrades(3);
+    user.shopOffers = randomUpgrades.map(u => u.id);
+    updateUser(user);
+  }
+  
+  const offers = user.shopOffers.map(id => getUpgradeById(id)!).filter(Boolean);
+  
+  let shopMessage = "🏪 *UPGRADE SHOP* 🏪\n\n";
+  shopMessage += `💰 Your Balance: ${user.balance} TON\n\n`;
+  
+  if (user.activeUpgrades && user.activeUpgrades.length > 0) {
+    shopMessage += "✨ *Active Upgrades:*\n";
+    user.activeUpgrades.forEach(au => {
+      const upgrade = getUpgradeById(au.upgradeId);
+      if (upgrade && au.spinsRemaining) {
+        shopMessage += `• ${upgrade.name} (${au.spinsRemaining} spins left)\n`;
+      }
+    });
+    shopMessage += "\n";
+  }
+  
+  shopMessage += "*Available Upgrades:*\n\n";
+  
+  const buttons = offers.map((upgrade, index) => {
+    const emoji = index === 0 ? "1️⃣" : index === 1 ? "2️⃣" : "3️⃣";
+    shopMessage += `${emoji} *${upgrade.name}*\n`;
+    shopMessage += `   ${upgrade.description}\n`;
+    shopMessage += `   💵 Cost: ${upgrade.cost} TON\n\n`;
+    
+    return [{ text: `${emoji} Buy ${upgrade.cost} TON`, callback_data: `buy_upgrade_${upgrade.id}` }];
+  });
+  
+  // Add refresh button
+  buttons.push([{ text: "🔄 Refresh (1000 TON)", callback_data: "refresh_shop" }]);
+  
+  ctx.reply(shopMessage, {
+    parse_mode: "Markdown",
+    reply_markup: {
+      inline_keyboard: buttons,
+    },
+  });
+});
+
+// Refresh shop handler
+bot.action("refresh_shop", async (ctx) => {
+  const user = getUser(ctx.from!.id);
+  const REFRESH_COST = 1000;
+  
+  if (user.balance < REFRESH_COST) {
+    ctx.answerCbQuery(`❌ Not enough balance! Need ${REFRESH_COST} TON`);
+    return;
+  }
+  
+  // Deduct refresh cost
+  user.balance -= REFRESH_COST;
+  
+  // Generate new random upgrades
+  const randomUpgrades = getRandomUpgrades(3);
+  user.shopOffers = randomUpgrades.map(u => u.id);
+  updateUser(user);
+  
+  const offers = user.shopOffers.map(id => getUpgradeById(id)!).filter(Boolean);
+  
+  let shopMessage = "🏪 *UPGRADE SHOP* 🏪\n\n";
+  shopMessage += `💰 Your Balance: ${user.balance} TON\n\n`;
+  
+  if (user.activeUpgrades && user.activeUpgrades.length > 0) {
+    shopMessage += "✨ *Active Upgrades:*\n";
+    user.activeUpgrades.forEach(au => {
+      const upgrade = getUpgradeById(au.upgradeId);
+      if (upgrade && au.spinsRemaining) {
+        shopMessage += `• ${upgrade.name} (${au.spinsRemaining} spins left)\n`;
+      }
+    });
+    shopMessage += "\n";
+  }
+  
+  shopMessage += "*Available Upgrades:*\n\n";
+  
+  const buttons = offers.map((upgrade, index) => {
+    const emoji = index === 0 ? "1️⃣" : index === 1 ? "2️⃣" : "3️⃣";
+    shopMessage += `${emoji} *${upgrade.name}*\n`;
+    shopMessage += `   ${upgrade.description}\n`;
+    shopMessage += `   💵 Cost: ${upgrade.cost} TON\n\n`;
+    
+    return [{ text: `${emoji} Buy ${upgrade.cost} TON`, callback_data: `buy_upgrade_${upgrade.id}` }];
+  });
+  
+  buttons.push([{ text: "🔄 Refresh (1000 TON)", callback_data: "refresh_shop" }]);
+  
+  await ctx.editMessageText(shopMessage, {
+    parse_mode: "Markdown",
+    reply_markup: {
+      inline_keyboard: buttons,
+    },
+  });
+  
+  ctx.answerCbQuery("✅ Shop refreshed!");
+});
+
+// Buy upgrade handler
+bot.action(/^buy_upgrade_(\d+)$/, async (ctx) => {
+  const upgradeId = parseInt(ctx.match[1]);
+  const user = getUser(ctx.from!.id);
+  const lang = user.language as Language;
+  const upgrade = getUpgradeById(upgradeId);
+  
+  if (!upgrade) {
+    ctx.answerCbQuery("❌ Upgrade not found!");
+    return;
+  }
+  
+  if (user.balance < upgrade.cost) {
+    ctx.answerCbQuery(`❌ Not enough balance! Need ${upgrade.cost} TON`);
+    return;
+  }
+  
+  // Deduct cost
+  user.balance -= upgrade.cost;
+  
+  // Add to active upgrades
+  if (!user.activeUpgrades) {
+    user.activeUpgrades = [];
+  }
+  
+  const activeUpgrade: ActiveUpgrade = {
+    upgradeId: upgrade.id,
+    spinsRemaining: upgrade.effect.spinsRemaining,
+    purchasedAt: Date.now(),
+  };
+  
+  user.activeUpgrades.push(activeUpgrade);
+  updateUser(user);
+  
+  ctx.answerCbQuery(`✅ Purchased ${upgrade.name}!`);
+  
+  // Show purchase confirmation with bet buttons
+  let confirmMessage = `✅ *Purchase Successful!*\n\n`;
+  confirmMessage += `🎁 *${upgrade.name}*\n`;
+  confirmMessage += `${upgrade.description}\n\n`;
+  confirmMessage += `💰 New Balance: ${user.balance} TON\n\n`;
+  
+  if (user.activeUpgrades && user.activeUpgrades.length > 0) {
+    confirmMessage += "✨ *Active Upgrades:*\n";
+    user.activeUpgrades.forEach(au => {
+      const upg = getUpgradeById(au.upgradeId);
+      if (upg && au.spinsRemaining) {
+        confirmMessage += `• ${upg.name} (${au.spinsRemaining} spins left)\n`;
+      }
+    });
+    confirmMessage += "\n";
+  }
+  
+  confirmMessage += "*Ready to spin?*";
+  
+  await ctx.editMessageText(confirmMessage, {
+    parse_mode: "Markdown",
+    reply_markup: {
+      inline_keyboard: [
+        [
+          { text: t(lang, 'button_spin_10'), callback_data: "spin_10" },
+          { text: t(lang, 'button_spin_50'), callback_data: "spin_50" },
+          { text: t(lang, 'button_spin_100'), callback_data: "spin_100" },
+        ],
+      ],
+    },
+  });
 });
 
 // Reusable spin logic
 const executeSpin = async (ctx: any, bet: number) => {
   const user = getUser(ctx.from!.id);
+  const lang = user.language as Language;
 
   if (user.balance < bet) {
-    return ctx.reply("No tienes suficiente balance.", {
+    return ctx.reply(t(lang, 'spin_insufficient', { balance: user.balance, bet }), {
        reply_markup: {
         inline_keyboard: [
-          [{ text: "🔙 Menú Principal", callback_data: "menu" }]
+          [{ text: "🔙 Menu", callback_data: "menu" }]
         ]
       }
     });
   }
 
   // Animation with consistent message length to prevent flickering
-  const spinningText = "🎰 *GIRANDO...* 🎰\n" +
-                       "──────────────\n" +
-                       "❓ | ❓ | ❓\n" +
-                       "──────────────\n" +
-                       "📉 Calculando tu nuevo balance...\n" +
-                       "💰 Veamos tu suerte";
+  const spinningText = t(lang, 'spin_spinning');
   
   const msg = await ctx.reply(spinningText, { 
     parse_mode: "Markdown",
     reply_markup: {
       inline_keyboard: [
         [
-          { text: "🔄 10", callback_data: "spin_10" },
-          { text: "🔄 50", callback_data: "spin_50" },
-          { text: "🔄 100", callback_data: "spin_100" },
+          { text: t(lang, 'button_spin_10'), callback_data: "spin_10" },
+          { text: t(lang, 'button_spin_50'), callback_data: "spin_50" },
+          { text: t(lang, 'button_spin_100'), callback_data: "spin_100" },
         ],
       ],
     },
@@ -89,27 +426,22 @@ const executeSpin = async (ctx: any, bet: number) => {
 
   for (let i = 0; i < 3; i++) {
     await delay(150);
-    const tempResult = spinSlots();
+    const tempResult = spinSlots(user.activeUpgrades || []);
     const tempBoard = `${tempResult[0].emoji} | ${tempResult[1].emoji} | ${tempResult[2].emoji}`;
     try {
         await ctx.telegram.editMessageText(
             msg.chat.id,
             msg.message_id,
             undefined,
-            `🎰 *GIRANDO...* 🎰\n` +
-            `──────────────\n` +
-            `${tempBoard}\n` +
-            `──────────────\n` +
-            `📉 Calculando tu nuevo balance...\n` +
-            `💰 Veamos tu suerte`,
+            t(lang, 'spin_spinning').replace('❓ | ❓ | ❓', tempBoard),
             { 
               parse_mode: "Markdown",
               reply_markup: {
                 inline_keyboard: [
                   [
-                    { text: "🔄 10", callback_data: "spin_10" },
-                    { text: "🔄 50", callback_data: "spin_50" },
-                    { text: "🔄 100", callback_data: "spin_100" },
+                    { text: t(lang, 'button_spin_10'), callback_data: "spin_10" },
+                    { text: t(lang, 'button_spin_50'), callback_data: "spin_50" },
+                    { text: t(lang, 'button_spin_100'), callback_data: "spin_100" },
                   ],
                 ],
               },
@@ -122,33 +454,66 @@ const executeSpin = async (ctx: any, bet: number) => {
 
   await delay(150);
 
-  const result = spinSlots();
-  const reward = calculateReward(bet, result);
+  const result = spinSlots(user.activeUpgrades || []);
+  const reward = calculateReward(bet, result, user.activeUpgrades || []);
+
+  // Calculate insurance refund if applicable
+  let insuranceRefund = 0;
+  if (reward === 0 && user.activeUpgrades) {
+    user.activeUpgrades.forEach(au => {
+      if (au.spinsRemaining && au.spinsRemaining > 0) {
+        const upgrade = getUpgradeById(au.upgradeId);
+        if (upgrade?.effect.insurance) {
+          insuranceRefund = Math.max(insuranceRefund, bet * (upgrade.effect.insurance / 100));
+        }
+      }
+    });
+  }
 
   user.balance -= bet;
   user.balance += reward;
+  user.balance += insuranceRefund; // Add insurance refund
+  user.lastBet = bet; // Save last bet for repeat button
+  
+  // Consume upgrades (decrease spins remaining)
+  if (user.activeUpgrades) {
+    user.activeUpgrades = user.activeUpgrades
+      .map(au => ({
+        ...au,
+        spinsRemaining: au.spinsRemaining ? au.spinsRemaining - 1 : 0,
+      }))
+      .filter(au => au.spinsRemaining && au.spinsRemaining > 0); // Remove expired upgrades
+  }
   
   // Save changes!
-  const { updateUser } = require("./users");
   updateUser(user);
 
   const board = `${result[0].emoji} | ${result[1].emoji} | ${result[2].emoji}`;
   
-  const winMessage = `🎉 *¡GANASTE!* 🎉\n` +
-                     `──────────────\n` +
-                     `${board}\n` +
-                     `──────────────\n` +
-                     `💸 Recompensa: *${reward} TON*\n` +
-                     `💰 Nuevo balance: ${user.balance} TON`;
+  let message = reward > 0
+    ? t(lang, 'spin_win', { board, reward, balance: user.balance })
+    : t(lang, 'spin_lose', { board, bet, balance: user.balance });
+  
+  // Add insurance message if applicable
+  if (insuranceRefund > 0) {
+    message += `\n\n🛡️ Insurance refund: +${insuranceRefund} TON`;
+  }
 
-  const loseMessage = `💀 *PERDISTE* 💀\n` +
-                      `──────────────\n` +
-                      `${board}\n` +
-                      `──────────────\n` +
-                      `📉 Perdiste: ${bet} TON\n` +
-                      `💰 Nuevo balance: ${user.balance} TON`;
-
-  const message = reward > 0 ? winMessage : loseMessage;
+  // Build button row with repeat button if there's a last bet
+  const buttonRow = [
+    { text: t(lang, 'button_spin_10'), callback_data: "spin_10" },
+    { text: t(lang, 'button_spin_50'), callback_data: "spin_50" },
+    { text: t(lang, 'button_spin_100'), callback_data: "spin_100" },
+  ];
+  
+  const buttons = [buttonRow];
+  
+  // Add repeat button if user has enough balance
+  if (user.lastBet && user.balance >= user.lastBet) {
+    buttons.push([
+      { text: `🔁 ${user.lastBet} TON`, callback_data: `spin_${user.lastBet}` }
+    ]);
+  }
 
   // Edit the message with final result and buttons
   await ctx.telegram.editMessageText(
@@ -159,13 +524,7 @@ const executeSpin = async (ctx: any, bet: number) => {
     {
         parse_mode: "Markdown",
         reply_markup: {
-        inline_keyboard: [
-            [
-            { text: "🔄 10", callback_data: "spin_10" },
-            { text: "🔄 50", callback_data: "spin_50" },
-            { text: "🔄 100", callback_data: "spin_100" },
-            ],
-        ],
+          inline_keyboard: buttons,
         },
     }
   );
@@ -205,3 +564,63 @@ bot.action(/^spin_(\d+)$/, (ctx) => {
 
 bot.launch();
 console.log("Bot iniciado...");
+
+// Payment button handlers
+const packages = {
+  buy_10: { credits: 10, stars: 1, label: "10 créditos" },
+  buy_100: { credits: 100, stars: 10, label: "100 créditos" },
+  buy_500: { credits: 500, stars: 45, label: "500 créditos" },
+  buy_1000: { credits: 1000, stars: 85, label: "1,000 créditos" },
+};
+
+Object.keys(packages).forEach((packageId) => {
+  bot.action(packageId, async (ctx) => {
+    const pkg = packages[packageId as keyof typeof packages];
+    const user = getUser(ctx.from!.id);
+    const lang = user.language as Language;
+    
+    try {
+      await ctx.sendInvoice({
+        title: `${pkg.credits} credits`,
+        description: `Get ${pkg.credits} credits to play`,
+        payload: packageId, // We'll use this to identify the purchase
+        provider_token: "", // Empty for Telegram Stars
+        currency: "XTR", // Telegram Stars currency code
+        prices: [{ label: pkg.label, amount: pkg.stars }],
+      });
+      
+      ctx.answerCbQuery(t(lang, 'payment_processing'));
+    } catch (error) {
+      console.error("Error creating invoice:", error);
+      ctx.answerCbQuery(t(lang, 'payment_error'));
+    }
+  });
+});
+
+// Handle pre-checkout query (required by Telegram)
+bot.on("pre_checkout_query", (ctx) => {
+  ctx.answerPreCheckoutQuery(true);
+});
+
+// Handle successful payment
+bot.on("successful_payment", async (ctx) => {
+  const payment = ctx.message?.successful_payment;
+  if (!payment) return;
+
+  const packageId = payment.invoice_payload;
+  const pkg = packages[packageId as keyof typeof packages];
+
+  if (pkg) {
+    const user = getUser(ctx.from!.id);
+    const lang = user.language as Language;
+    user.balance += pkg.credits;
+    
+    const { updateUser } = require("./users");
+    updateUser(user);
+
+    await ctx.reply(
+      t(lang, 'payment_success', { credits: pkg.credits, balance: user.balance }),
+      { parse_mode: "Markdown" }
+    );
+  }
+});

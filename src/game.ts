@@ -1,4 +1,5 @@
-import { SymbolSlot } from "./types";
+import { SymbolSlot, ActiveUpgrade, UpgradeEffect } from "./types";
+import { getUpgradeById } from "./upgrades";
 
 export const symbols: SymbolSlot[] = [
   { emoji: "🍒", multiplier: 4 },   // Common (1/8 win rate) - 50% return
@@ -12,19 +13,70 @@ export const symbols: SymbolSlot[] = [
 
 // Helper to create strips with all symbols
 // 20-item reel for better distribution control
-const createStrip = (specialSymbol: SymbolSlot): SymbolSlot[] => [
-  symbols[0], symbols[0], symbols[0], symbols[0], symbols[0], symbols[0], symbols[0], symbols[0], symbols[0], symbols[0], // 10x Cherry (50%)
-  symbols[1], symbols[1], symbols[1], symbols[1], // 4x Lemon (20%)
-  symbols[2], symbols[2], symbols[2], // 3x Star (15%)
-  symbols[3], // 1x Seven (5%)
-  specialSymbol, specialSymbol, // 2x Special Letter (10%)
-];
+const createStrip = (specialSymbol: SymbolSlot, boosts: { cherry?: number, lemon?: number, star?: number, seven?: number } = {}): SymbolSlot[] => {
+  const baseDistribution = {
+    cherry: 10, // 50%
+    lemon: 4,   // 20%
+    star: 3,    // 15%
+    seven: 1,   // 5%
+    special: 2, // 10%
+  };
+  
+  // Apply probability boosts (convert % to count adjustments)
+  const cherryCount = Math.max(1, Math.round(baseDistribution.cherry * (1 + (boosts.cherry || 0) / 100)));
+  const lemonCount = Math.max(1, Math.round(baseDistribution.lemon * (1 + (boosts.lemon || 0) / 100)));
+  const starCount = Math.max(1, Math.round(baseDistribution.star * (1 + (boosts.star || 0) / 100)));
+  const sevenCount = Math.max(1, Math.round(baseDistribution.seven * (1 + (boosts.seven || 0) / 100)));
+  
+  const strip: SymbolSlot[] = [];
+  
+  for (let i = 0; i < cherryCount; i++) strip.push(symbols[0]);
+  for (let i = 0; i < lemonCount; i++) strip.push(symbols[1]);
+  for (let i = 0; i < starCount; i++) strip.push(symbols[2]);
+  for (let i = 0; i < sevenCount; i++) strip.push(symbols[3]);
+  for (let i = 0; i < baseDistribution.special; i++) strip.push(specialSymbol);
+  
+  return strip;
+};
 
-const reel1: SymbolSlot[] = createStrip(symbols[4]); // Contains B
-const reel2: SymbolSlot[] = createStrip(symbols[5]); // Contains A
-const reel3: SymbolSlot[] = createStrip(symbols[6]); // Contains R
-
-export function spinSlots(): SymbolSlot[] {
+export function spinSlots(activeUpgrades: ActiveUpgrade[] = []): SymbolSlot[] {
+  // Aggregate all upgrade effects
+  const totalBoosts = {
+    cherry: 0,
+    lemon: 0,
+    star: 0,
+    seven: 0,
+  };
+  
+  let guarantee: string | undefined;
+  
+  activeUpgrades.forEach(au => {
+    if (!au.spinsRemaining || au.spinsRemaining <= 0) return;
+    
+    const upgrade = getUpgradeById(au.upgradeId);
+    if (!upgrade) return;
+    
+    const effect = upgrade.effect;
+    if (effect.cherryBoost) totalBoosts.cherry += effect.cherryBoost;
+    if (effect.lemonBoost) totalBoosts.lemon += effect.lemonBoost;
+    if (effect.starBoost) totalBoosts.star += effect.starBoost;
+    if (effect.sevenBoost) totalBoosts.seven += effect.sevenBoost;
+    if (effect.guarantee) guarantee = effect.guarantee;
+  });
+  
+  // If there's a guarantee, force that symbol
+  if (guarantee) {
+    const guaranteedSymbol = symbols.find(s => s.emoji.includes(guarantee === "cherry" ? "🍒" : guarantee === "lemon" ? "🍋" : guarantee === "star" ? "⭐" : ""));
+    if (guaranteedSymbol) {
+      return [guaranteedSymbol, guaranteedSymbol, guaranteedSymbol];
+    }
+  }
+  
+  // Create reels with boosts
+  const reel1 = createStrip(symbols[4], totalBoosts);
+  const reel2 = createStrip(symbols[5], totalBoosts);
+  const reel3 = createStrip(symbols[6], totalBoosts);
+  
   return [
     reel1[Math.floor(Math.random() * reel1.length)],
     reel2[Math.floor(Math.random() * reel2.length)],
@@ -32,17 +84,38 @@ export function spinSlots(): SymbolSlot[] {
   ];
 }
 
-export function calculateReward(bet: number, result: SymbolSlot[]): number {
+export function calculateReward(bet: number, result: SymbolSlot[], activeUpgrades: ActiveUpgrade[] = []): number {
   const [a, b, c] = result;
+  
+  // Aggregate multiplier effects
+  let totalMultiplier = 1;
+  const symbolMultipliers: Record<string, number> = {};
+  
+  activeUpgrades.forEach(au => {
+    if (!au.spinsRemaining || au.spinsRemaining <= 0) return;
+    
+    const upgrade = getUpgradeById(au.upgradeId);
+    if (!upgrade) return;
+    
+    const effect = upgrade.effect;
+    if (effect.universalMultiplier) totalMultiplier *= effect.universalMultiplier;
+    if (effect.cherryMultiplier) symbolMultipliers["🍒"] = (symbolMultipliers["🍒"] || 1) * effect.cherryMultiplier;
+    if (effect.lemonMultiplier) symbolMultipliers["🍋"] = (symbolMultipliers["🍋"] || 1) * effect.lemonMultiplier;
+    if (effect.starMultiplier) symbolMultipliers["⭐"] = (symbolMultipliers["⭐"] || 1) * effect.starMultiplier;
+    if (effect.sevenMultiplier) symbolMultipliers["7️⃣"] = (symbolMultipliers["7️⃣"] || 1) * effect.sevenMultiplier;
+    if (effect.barMultiplier) symbolMultipliers["BAR"] = (symbolMultipliers["BAR"] || 1) * effect.barMultiplier;
+  });
 
   // Special Jackpot: B - A - R
   if (a.emoji === "🇧" && b.emoji === "🇦" && c.emoji === "🇷") {
-    return bet * 100; // 100x Jackpot! (1 in 1000 chance)
+    const barMultiplier = symbolMultipliers["BAR"] || 1;
+    return bet * 100 * barMultiplier * totalMultiplier; // Apply BAR and universal multipliers
   }
 
   // Standard 3-of-a-kind
   if (a.emoji === b.emoji && b.emoji === c.emoji) {
-    return bet * a.multiplier;
+    const symbolMultiplier = symbolMultipliers[a.emoji] || 1;
+    return bet * a.multiplier * symbolMultiplier * totalMultiplier;
   }
   
   return 0;
