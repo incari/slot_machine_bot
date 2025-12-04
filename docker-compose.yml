@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  slot-bot:
+    build: .
+    container_name: telegram-slot-bot
+    restart: unless-stopped
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - NODE_ENV=production
+    volumes:
+      # Persist user data
+      - ./users.json:/app/users.json
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+

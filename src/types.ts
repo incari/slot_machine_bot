@@ -5,6 +5,9 @@ export interface User {
   lastBet?: number; // Track last bet amount for repeat button
   activeUpgrades?: ActiveUpgrade[]; // Active upgrades affecting gameplay
   shopOffers?: number[]; // Current 3 upgrade IDs in shop
+  lastLoginDate?: string; // Last login date in YYYY-MM-DD format
+  consecutiveDays?: number; // Current consecutive login streak
+  totalLoginDays?: number; // Total number of days logged in
 }
 
 export interface SymbolSlot {
@@ -17,7 +20,7 @@ export interface Upgrade {
   name: string;
   description: string;
   cost: number;
-  type: 'probability' | 'multiplier' | 'special' | 'temporary';
+  type: "probability" | "multiplier" | "special" | "temporary";
   effect: UpgradeEffect;
 }
 
@@ -27,7 +30,7 @@ export interface UpgradeEffect {
   lemonBoost?: number;
   starBoost?: number;
   sevenBoost?: number;
-  
+
   // Multiplier modifications (multiplicative)
   cherryMultiplier?: number;
   lemonMultiplier?: number;
@@ -35,12 +38,12 @@ export interface UpgradeEffect {
   sevenMultiplier?: number;
   barMultiplier?: number;
   universalMultiplier?: number; // Applies to all wins
-  
+
   // Special effects
   insurance?: number; // Refund % on loss
   reroll?: boolean; // Can reroll one reel
   guarantee?: string; // Guarantee specific symbol
-  
+
   // Duration
   spinsRemaining?: number; // For temporary upgrades
   permanent?: boolean; // For permanent upgrades
