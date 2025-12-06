@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   slot-bot:
-    build: .
+    # Use the image built by GitHub Actions
+    image: ghcr.io/incari/slot_machine_bot:latest
+    # build: . # Uncomment if you want to build locally instead
     container_name: slot-bot
     restart: unless-stopped
     environment:

@@ -12,15 +12,24 @@
     cd slot-bot
     ```
 
-2.  **Create .env file**:
+2.  **Authenticate with GitHub Container Registry** (Required for private repos):
+    - Go to GitHub -> Settings -> Developer Settings -> Personal Access Tokens (Classic).
+    - Generate a new token with `read:packages` scope.
+    - On your server run:
+    ```bash
+    export CR_PAT=YOUR_TOKEN_HERE
+    echo $CR_PAT | docker login ghcr.io -u YOUR_GITHUB_USERNAME --password-stdin
+    ```
+
+3.  **Create .env file**:
     ```bash
     echo "BOT_TOKEN=your_token_here" > .env
     echo "ADMIN_ID=your_id_here" >> .env
     ```
 
-3.  **Run the bot**:
+4.  **Run the bot**:
     ```bash
-    docker-compose up -d --build
+    docker-compose up -d
     ```
 
 4.  **View Logs**:
