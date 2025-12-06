@@ -3,17 +3,12 @@ version: '3.8'
 services:
   slot-bot:
     build: .
-    container_name: telegram-slot-bot
+    container_name: slot-bot
     restart: unless-stopped
     environment:
       - BOT_TOKEN=${BOT_TOKEN}
-      - NODE_ENV=production
+      - ADMIN_ID=${ADMIN_ID}
     volumes:
-      # Persist user data
+      - ./data:/app/data
+      # Mount users.json if it exists in root, or map to data folder
       - ./users.json:/app/users.json
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-

@@ -89,9 +89,19 @@ export interface DailyBonusResult {
   alreadyClaimed: boolean;
 }
 
+import { generateDailyGoals } from "./goals";
+
+// ... existing code ...
+
 export function processDailyLogin(user: User): DailyBonusResult {
   const today = getTodayDate();
   const yesterday = getYesterdayDate();
+  
+  // Always ensure goals exist or refresh them if it's a new day
+  // We do this check before the "already claimed" check so users get new goals even if they claimed bonus
+  if (!user.dailyGoals || user.lastLoginDate !== today) {
+    user.dailyGoals = generateDailyGoals();
+  }
   
   // Initialize if first time
   if (!user.lastLoginDate) {

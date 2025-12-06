@@ -1,24 +1,39 @@
-# Use Node.js LTS version
-FROM node:20-alpine
+# Build stage
+FROM node:18-alpine AS builder
 
-# Set working directory
 WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production
+RUN npm ci
 
 # Copy source code
 COPY . .
 
-# Create users.json if it doesn't exist
-RUN touch users.json
+# Build TypeScript
+RUN npm run build
 
-# Set environment variables (will be overridden by docker-compose or -e flag)
-ENV NODE_ENV=production
+# Production stage
+FROM node:18-alpine
 
-# Run the bot
-CMD ["npm", "start"]
+WORKDIR /app
 
+# Copy package files
+COPY package*.json ./
+
+# Install only production dependencies
+RUN npm ci --only=production
+
+# Copy built files from builder stage
+COPY --from=builder /app/dist ./dist
+
+# Create data directory for persistence
+RUN mkdir -p /app/data
+
+# Expose port (if needed, though bot uses polling)
+# EXPOSE 3000
+
+# Start the bot
+CMD ["node", "dist/bot.js"]

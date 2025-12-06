@@ -6,6 +6,8 @@ import { setUserLanguage } from "./users";
 import { getRandomUpgrades, getUpgradeById } from "./upgrades";
 import { ActiveUpgrade } from "./types";
 import { processDailyLogin, getDailyBonusEmoji } from "./dailyBonus";
+import { calculateLevel, getLevelProgress, getLevelTitle, getLevelBonus } from "./levels";
+import { checkGoals } from "./goals";
 
 require("dotenv").config();
 
@@ -103,6 +105,8 @@ const commandTranslations = {
     { command: "info", description: "View odds" },
     { command: "language", description: "Change language" },
     { command: "daily", description: "Daily login bonus" },
+    { command: "goals", description: "Daily goals" },
+    { command: "profile", description: "User profile" },
     { command: "spin", description: "Spin slot machine" },
     { command: "help", description: "View help" },
   ],
@@ -114,6 +118,8 @@ const commandTranslations = {
     { command: "info", description: "Ver probabilidades" },
     { command: "language", description: "Cambiar idioma" },
     { command: "daily", description: "Bono de inicio diario" },
+    { command: "goals", description: "Objetivos diarios" },
+    { command: "profile", description: "Perfil de usuario" },
     { command: "spin", description: "Girar tragamonedas" },
     { command: "help", description: "Ver ayuda" },
   ],
@@ -125,6 +131,8 @@ const commandTranslations = {
     { command: "info", description: "Gewinnchancen anzeigen" },
     { command: "language", description: "Sprache ändern" },
     { command: "daily", description: "Täglicher Login-Bonus" },
+    { command: "goals", description: "Tägliche Ziele" },
+    { command: "profile", description: "Benutzerprofil" },
     { command: "spin", description: "Spielautomat drehen" },
     { command: "help", description: "Hilfe anzeigen" },
   ],
@@ -136,6 +144,8 @@ const commandTranslations = {
     { command: "info", description: "Visualizza probabilità" },
     { command: "language", description: "Cambia lingua" },
     { command: "daily", description: "Bonus accesso giornaliero" },
+    { command: "goals", description: "Obiettivi giornalieri" },
+    { command: "profile", description: "Profilo utente" },
     { command: "spin", description: "Gira slot machine" },
     { command: "help", description: "Visualizza aiuto" },
   ],
@@ -147,6 +157,8 @@ const commandTranslations = {
     { command: "info", description: "Voir les probabilités" },
     { command: "language", description: "Changer de langue" },
     { command: "daily", description: "Bonus de connexion quotidien" },
+    { command: "goals", description: "Objectifs quotidiens" },
+    { command: "profile", description: "Profil utilisateur" },
     { command: "spin", description: "Tourner la machine" },
     { command: "help", description: "Voir l'aide" },
   ],
@@ -158,6 +170,8 @@ const commandTranslations = {
     { command: "info", description: "Посмотреть шансы" },
     { command: "language", description: "Изменить язык" },
     { command: "daily", description: "Ежедневный бонус" },
+    { command: "goals", description: "Ежедневные цели" },
+    { command: "profile", description: "Профиль пользователя" },
     { command: "spin", description: "Крутить автомат" },
     { command: "help", description: "Посмотреть помощь" },
   ],
@@ -286,6 +300,81 @@ bot.command("daily", (ctx) => {
     }),
     { parse_mode: "Markdown" }
   );
+});
+
+// Goals command
+bot.command("goals", (ctx) => {
+  const user = getUser(ctx.from!.id);
+  const lang = user.language as Language;
+
+  if (!user.dailyGoals || user.dailyGoals.length === 0) {
+    // Should have been generated on login, but just in case
+    const { generateDailyGoals } = require("./goals");
+    user.dailyGoals = generateDailyGoals();
+    updateUser(user);
+  }
+
+  let message = "🎯 *DAILY GOALS* 🎯\n\n";
+  
+  user.dailyGoals!.forEach(goal => {
+    const status = goal.completed ? "✅" : "⬜";
+    const progress = Math.min(100, Math.floor((goal.current / goal.target) * 100));
+    const progressBar = "▓".repeat(Math.floor(progress / 10)) + "░".repeat(10 - Math.floor(progress / 10));
+    
+    message += `${status} *${goal.description}*\n`;
+    if (goal.completed) {
+      message += `   🎉 Completed! (+${goal.rewardXp} XP, +${goal.rewardCredits} Credits)\n\n`;
+    } else {
+      message += `   ${progressBar} ${goal.current}/${goal.target}\n`;
+      message += `   🎁 Reward: ${goal.rewardXp} XP, ${goal.rewardCredits} Credits\n\n`;
+    }
+  });
+
+  ctx.reply(message, { parse_mode: "Markdown" });
+});
+
+// Profile command
+bot.command("profile", (ctx) => {
+  const user = getUser(ctx.from!.id);
+  const lang = user.language as Language;
+  
+  const level = user.level || 1;
+  const xp = user.activeUpgrades ? (user as any).xp || 0 : 0; // Fix type issue temporarily
+  const title = getLevelTitle(level);
+  const progress = getLevelProgress(user.xp || 0, level);
+  const bonus = Math.round((getLevelBonus(level) - 1) * 100);
+  
+  const progressBar = "▓".repeat(Math.floor(progress.percentage / 10)) + "░".repeat(10 - Math.floor(progress.percentage / 10));
+
+  let message = `👤 *USER PROFILE* 👤\n\n`;
+  message += `📜 Title: *${title}*\n`;
+  message += `🆙 Level: *${level}*\n`;
+  message += `✨ XP: ${progress.current} / ${progress.total}\n`;
+  message += `   ${progressBar} ${progress.percentage}%\n\n`;
+  
+  message += `💎 *Stats:*\n`;
+  message += `💰 Balance: ${user.balance} TON\n`;
+  message += `🍀 Level Bonus: +${bonus}% rewards\n`;
+  message += `🔥 Login Streak: ${user.consecutiveDays || 0} days\n`;
+  message += `📅 Total Days: ${user.totalLoginDays || 0} days\n`;
+
+  ctx.reply(message, { parse_mode: "Markdown" });
+});
+
+// Cheat command for testing (Admin only)
+bot.command("cheat", (ctx) => {
+  const adminId = parseInt(process.env.ADMIN_ID || "0");
+  if (ctx.from!.id !== adminId) return;
+
+  const user = getUser(ctx.from!.id);
+  user.balance += 10000;
+  updateUser(user);
+  ctx.reply(`🕵️ *CHEAT ACTIVATED*\nAdded 10,000 TON to your balance.\nNew Balance: ${user.balance} TON`, { parse_mode: "Markdown" });
+});
+
+// Helper to find your ID
+bot.command("id", (ctx) => {
+  ctx.reply(`Your ID is: \`${ctx.from!.id}\``, { parse_mode: "Markdown" });
 });
 
 // Shop command - show 3 random upgrades
@@ -487,19 +576,35 @@ const executeSpin = async (ctx: any, bet: number) => {
   const user = getUser(ctx.from!.id);
   const lang = user.language as Language;
 
+  // Check for spin lock to prevent race conditions
+  if (user.isSpinning) {
+    return ctx.answerCbQuery ? ctx.answerCbQuery("⏳ Please wait...") : null;
+  }
+
   if (user.balance < bet) {
     return ctx.reply(
-      t(lang, "spin_insufficient", { balance: user.balance, bet }),
+      t(lang, "spin_insufficient", { balance: user.balance, bet }) + "\n\n" + t(lang, "buy_title") + t(lang, "buy_packages"),
       {
+        parse_mode: "Markdown",
         reply_markup: {
-          inline_keyboard: [[{ text: "🔙 Menu", callback_data: "menu" }]],
+          inline_keyboard: [
+            [{ text: t(lang, "buy_button_10"), callback_data: "buy_10" }],
+            [{ text: t(lang, "buy_button_100"), callback_data: "buy_100" }],
+            [{ text: t(lang, "buy_button_500"), callback_data: "buy_500" }],
+            [{ text: t(lang, "buy_button_1000"), callback_data: "buy_1000" }],
+          ],
         },
       }
     );
   }
 
-  // Animation with consistent message length to prevent flickering
-  const spinningText = t(lang, "spin_spinning");
+  // Set spin lock
+  user.isSpinning = true;
+  updateUser(user);
+
+  try {
+    // Animation with consistent message length to prevent flickering
+    const spinningText = t(lang, "spin_spinning");
 
   // Build consistent button layout for animation (same as final result)
   const animationButtons = [
@@ -523,32 +628,30 @@ const executeSpin = async (ctx: any, bet: number) => {
     },
   });
 
-  for (let i = 0; i < 3; i++) {
-    await delay(150);
-    const tempResult = spinSlots(user.activeUpgrades || []);
-    const tempBoard = `${tempResult[0].emoji} | ${tempResult[1].emoji} | ${tempResult[2].emoji}`;
-    try {
-      await ctx.telegram.editMessageText(
-        msg.chat.id,
-        msg.message_id,
-        undefined,
-        t(lang, "spin_spinning").replace("❓ | ❓ | ❓", tempBoard),
-        {
-          parse_mode: "Markdown",
-          reply_markup: {
-            inline_keyboard: animationButtons,
-          },
-        }
-      );
-    } catch (e) {
-      // Ignore errors if message is not modified
-    }
+  await delay(100);
+  const tempResult = spinSlots(user.activeUpgrades || []);
+  const tempBoard = `${tempResult[0].emoji} | ${tempResult[1].emoji} | ${tempResult[2].emoji}`;
+  try {
+    await ctx.telegram.editMessageText(
+      msg.chat.id,
+      msg.message_id,
+      undefined,
+      t(lang, "spin_spinning").replace("❓ | ❓ | ❓", tempBoard),
+      {
+        parse_mode: "Markdown",
+        reply_markup: {
+          inline_keyboard: animationButtons,
+        },
+      }
+    );
+  } catch (e) {
+    // Ignore errors if message is not modified
   }
 
-  await delay(150);
+  await delay(300);
 
   const result = spinSlots(user.activeUpgrades || []);
-  const reward = calculateReward(bet, result, user.activeUpgrades || []);
+  const reward = calculateReward(bet, result, user.activeUpgrades || [], user.level || 1);
 
   // Calculate insurance refund if applicable
   let insuranceRefund = 0;
@@ -584,6 +687,63 @@ const executeSpin = async (ctx: any, bet: number) => {
   // Save changes!
   updateUser(user);
 
+  // --- GAMIFICATION START ---
+  let gamificationMessages = "";
+
+  // Add XP (1 per spin)
+  const currentLevel = user.level || 1;
+  const currentXp = user.xp || 0;
+  user.xp = currentXp + 1;
+  
+  // Check for level up
+  const newLevel = calculateLevel(user.xp);
+  if (newLevel > currentLevel) {
+    user.level = newLevel;
+    const title = getLevelTitle(newLevel);
+    const bonus = Math.round((getLevelBonus(newLevel) - 1) * 100);
+    
+    // Add level up message to buffer
+    gamificationMessages += `\n\n🎉 *LEVEL UP!* 🎉\nYou are now Level *${newLevel}*!\nNew Title: *${title}*\nPassive Bonus: *+${bonus}%* rewards`;
+  }
+
+  // Check Daily Goals
+  if (!user.dailyGoals) {
+    const { generateDailyGoals } = require("./goals");
+    user.dailyGoals = generateDailyGoals();
+  }
+
+  const goalsToCheck: any[] = [
+    { type: "spin" },
+    { type: "bet", amount: bet }
+  ];
+
+  if (reward > 0) {
+    goalsToCheck.push({ type: "win", amount: reward / bet }); // Send multiplier for win_big check
+  } else {
+    goalsToCheck.push({ type: "loss" });
+  }
+
+  let goalsUpdated = false;
+  goalsToCheck.forEach(event => {
+    const result = checkGoals(user, event);
+    if (result.updated) goalsUpdated = true;
+    
+    result.completed.forEach(goal => {
+      // Award goal rewards
+      user.xp = (user.xp || 0) + goal.rewardXp;
+      user.balance += goal.rewardCredits;
+      
+      // Add goal message to buffer
+      gamificationMessages += `\n\n🎯 *GOAL COMPLETED!* 🎯\n*${goal.description}*\n🎁 Rewards: +${goal.rewardXp} XP, +${goal.rewardCredits} Credits`;
+    });
+  });
+
+  if (goalsUpdated || newLevel > currentLevel) {
+    updateUser(user);
+  }
+  // --- GAMIFICATION END ---
+  // --- GAMIFICATION END ---
+
   const board = `${result[0].emoji} | ${result[1].emoji} | ${result[2].emoji}`;
 
   let message =
@@ -594,6 +754,11 @@ const executeSpin = async (ctx: any, bet: number) => {
   // Add insurance message if applicable
   if (insuranceRefund > 0) {
     message += `\n\n🛡️ Insurance refund: +${insuranceRefund} TON`;
+  }
+
+  // Add gamification messages
+  if (gamificationMessages) {
+    message += gamificationMessages;
   }
 
   // Build button rows - always include repeat button row to prevent flickering
@@ -610,9 +775,12 @@ const executeSpin = async (ctx: any, bet: number) => {
     buttons.push([
       { text: `🔁 ${user.lastBet} TON`, callback_data: `spin_${user.lastBet}` },
     ]);
+  } else if (user.lastBet && user.balance > 0) {
+    // Allow user to play with their remaining balance when they can't afford last bet
+    buttons.push([{ text: `🔁 ${user.balance} TON`, callback_data: `spin_${user.balance}` }]);
   } else {
-    // Add empty placeholder row to maintain consistent layout
-    buttons.push([{ text: "─────3333-────", callback_data: "noop" }]);
+    // Show buy button when user has no balance
+    buttons.push([{ text: "💰 Buy Credits", callback_data: "show_buy_menu" }]);
   }
 
   // Edit the message with final result and buttons
@@ -628,6 +796,11 @@ const executeSpin = async (ctx: any, bet: number) => {
       },
     }
   );
+  } finally {
+    // Release spin lock
+    user.isSpinning = false;
+    updateUser(user);
+  }
 };
 
 bot.command("spin", (ctx) => {
@@ -665,6 +838,29 @@ bot.action(/^spin_(\d+)$/, (ctx) => {
 // Handle noop action (placeholder button)
 bot.action("noop", (ctx) => {
   ctx.answerCbQuery(); // Just dismiss the callback
+});
+
+// Handle show buy menu action
+bot.action("show_buy_menu", async (ctx) => {
+  const user = getUser(ctx.from!.id);
+  const lang = user.language as Language;
+  
+  await ctx.answerCbQuery();
+  
+  await ctx.reply(
+    t(lang, "buy_title") + t(lang, "buy_packages"),
+    {
+      parse_mode: "Markdown",
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: t(lang, "buy_button_10"), callback_data: "buy_10" }],
+          [{ text: t(lang, "buy_button_100"), callback_data: "buy_100" }],
+          [{ text: t(lang, "buy_button_500"), callback_data: "buy_500" }],
+          [{ text: t(lang, "buy_button_1000"), callback_data: "buy_1000" }],
+        ],
+      },
+    }
+  );
 });
 
 bot.launch();

@@ -8,6 +8,21 @@ export interface User {
   lastLoginDate?: string; // Last login date in YYYY-MM-DD format
   consecutiveDays?: number; // Current consecutive login streak
   totalLoginDays?: number; // Total number of days logged in
+  level?: number; // User level (default 1)
+  xp?: number; // Current XP (default 0)
+  dailyGoals?: DailyGoal[]; // Active daily goals
+  isSpinning?: boolean; // Lock to prevent race conditions
+}
+
+export interface DailyGoal {
+  id: string;
+  type: "spin_count" | "win_count" | "bet_total" | "win_big" | "loss_streak";
+  target: number;
+  current: number;
+  completed: boolean;
+  rewardXp: number;
+  rewardCredits: number;
+  description: string;
 }
 
 export interface SymbolSlot {

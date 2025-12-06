@@ -1,1 +1,61 @@
-{}
+{
+  "4405089": {
+    "id": 4405089,
+    "balance": 100000,
+    "language": "es",
+    "consecutiveDays": 1,
+    "totalLoginDays": 1,
+    "lastLoginDate": "2025-12-05",
+    "lastBet": 13900
+  },
+  "7068184183": {
+    "id": 7068184183,
+    "balance": 118705,
+    "language": "en",
+    "consecutiveDays": 2,
+    "totalLoginDays": 2,
+    "lastLoginDate": "2025-12-06",
+    "lastBet": 100,
+    "shopOffers": [
+      57,
+      90,
+      22
+    ],
+    "xp": 325,
+    "dailyGoals": [
+      {
+        "id": "u7fr6j",
+        "type": "loss_streak",
+        "target": 8,
+        "current": 8,
+        "completed": true,
+        "rewardXp": 80,
+        "rewardCredits": 400,
+        "description": "Lose 8 times in a row (Survivor)"
+      },
+      {
+        "id": "j3izgs",
+        "type": "bet_total",
+        "target": 2000,
+        "current": 2000,
+        "completed": true,
+        "rewardXp": 100,
+        "rewardCredits": 200,
+        "description": "Bet a total of 2000 TON"
+      },
+      {
+        "id": "lccgjs",
+        "type": "spin_count",
+        "target": 90,
+        "current": 90,
+        "completed": true,
+        "rewardXp": 45,
+        "rewardCredits": 180,
+        "description": "Spin the slot machine 90 times"
+      }
+    ],
+    "level": 3,
+    "activeUpgrades": [],
+    "isSpinning": false
+  }
+}

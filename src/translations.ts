@@ -56,12 +56,24 @@ export const translations: Record<Language, Translation> = {
     // Spin
     spin_insufficient:
       "❌ Insufficient balance!\n\nYour balance: {balance} TON\nRequired: {bet} TON",
-    spin_spinning:
-      "🎰 *SPINNING...* 🎰────────────────────────────────────\n❓ | ❓ | ❓────────────────────────────────────\n📉 Calculating your new balance...\n💰 Let's see your luck",
-    spin_win:
-      "🎉 *YOU WON!* 🎉────────────────────────────────────\n{board}────────────────────────────────────\n💸 Reward: *{reward} TON*\n💰 New balance: {balance} TON",
-    spin_lose:
-      "💀 *YOU LOST* 💀────────────────────────────────────\n{board}────────────────────────────────────\n📉 Lost: {bet} TON\n💰 New balance: {balance} TON",
+    spin_spinning: `🎰 *SPINNING...* 🎰
+─────────── 
+❓ | ❓ | ❓
+───────────
+📉 Calculating your new balance...
+💰 Let's see your luck`,
+    spin_win: `🎉 *YOU WON!* 🎉
+─────────── 
+{board}
+───────────
+💸 Reward: *{reward} TON*
+💰 New balance: {balance} TON`,
+    spin_lose: `💀 *YOU LOST* 💀
+───────────
+{board}
+───────────
+📉 Lost: {bet} TON
+💰 New balance: {balance} TON`,
 
     // Payment
     payment_processing: "Processing payment...",
@@ -133,12 +145,24 @@ export const translations: Record<Language, Translation> = {
 
     spin_insufficient:
       "❌ ¡Saldo insuficiente!\n\nTu balance: {balance} TON\nRequerido: {bet} TON",
-    spin_spinning:
-      "🎰 *GIRANDO...* 🎰\n───────────────────\n❓ | ❓ | ❓\n───────────────────\n📉 Calculando tu nuevo balance...\n💰 Veamos tu suerte",
-    spin_win:
-      "🎉 *¡GANASTE!* 🎉\n───────────────────\n{board}\n───────────────────\n💸 Recompensa: *{reward} TON*\n💰 Nuevo balance: {balance} TON",
-    spin_lose:
-      "💀 *PERDISTE* 💀\n───────────────────\n{board}\n───────────────────\n📉 Perdiste: {bet} TON\n💰 Nuevo balance: {balance} TON",
+    spin_spinning: `🎰 *GIRANDO...* 🎰
+───────────────────
+❓ | ❓ | ❓
+───────────────────
+📉 Calculando tu nuevo balance...
+💰 Veamos tu suerte`,
+    spin_win: `🎉 *¡GANASTE!* 🎉
+───────────────────
+{board}
+───────────────────
+💸 Recompensa: *{reward} TON*
+💰 Nuevo balance: {balance} TON`,
+    spin_lose: `💀 *PERDISTE* 💀
+───────────────────
+{board}
+───────────────────
+📉 Perdiste: {bet} TON
+💰 Nuevo balance: {balance} TON`,
 
     payment_processing: "Procesando pago...",
     payment_error: "Error al crear la factura. Intenta de nuevo.",
@@ -208,12 +232,24 @@ export const translations: Record<Language, Translation> = {
 
     spin_insufficient:
       "❌ Unzureichendes Guthaben!\n\nDein Guthaben: {balance} TON\nBenötigt: {bet} TON",
-    spin_spinning:
-      "🎰 *DREHT...* 🎰\n───────────────────\n❓ | ❓ | ❓\n───────────────────\n📉 Berechne dein neues Guthaben...\n💰 Mal sehen, was das Glück bringt",
-    spin_win:
-      "🎉 *GEWONNEN!* 🎉\n───────────────────\n{board}\n───────────────────\n💸 Gewinn: *{reward} TON*\n💰 Neues Guthaben: {balance} TON",
-    spin_lose:
-      "💀 *VERLOREN* 💀\n───────────────────\n{board}\n───────────────────\n📉 Verlust: {bet} TON\n💰 Neues Guthaben: {balance} TON",
+    spin_spinning: `🎰 *DREHT...* 🎰
+───────────────────
+❓ | ❓ | ❓
+───────────────────
+📉 Berechne dein neues Guthaben...
+💰 Mal sehen, was das Glück bringt`,
+    spin_win: `🎉 *GEWONNEN!* 🎉
+───────────────────
+{board}
+───────────────────
+💸 Gewinn: *{reward} TON*
+💰 Neues Guthaben: {balance} TON`,
+    spin_lose: `💀 *VERLOREN* 💀
+───────────────────
+{board}
+───────────────────
+📉 Verlust: {bet} TON
+💰 Neues Guthaben: {balance} TON`,
 
     payment_processing: "Zahlung wird verarbeitet...",
     payment_error: "Fehler beim Erstellen der Rechnung. Versuche es erneut.",
@@ -283,12 +319,24 @@ export const translations: Record<Language, Translation> = {
 
     spin_insufficient:
       "❌ Saldo insufficiente!\n\nIl tuo saldo: {balance} TON\nRichiesto: {bet} TON",
-    spin_spinning:
-      "🎰 *GIRANDO...* 🎰\n───────────────────\n❓ | ❓ | ❓\n───────────────────\n📉 Calcolo del nuovo saldo...\n💰 Vediamo la tua fortuna",
-    spin_win:
-      "🎉 *HAI VINTO!* 🎉\n───────────────────\n{board}\n───────────────────\n💸 Premio: *{reward} TON*\n💰 Nuovo saldo: {balance} TON",
-    spin_lose:
-      "💀 *HAI PERSO* 💀\n───────────────────\n{board}\n───────────────────\n📉 Perso: {bet} TON\n💰 Nuovo saldo: {balance} TON",
+    spin_spinning: `🎰 *GIRANDO...* 🎰
+───────────────────
+❓ | ❓ | ❓
+───────────────────
+📉 Calcolo del nuovo saldo...
+💰 Vediamo la tua fortuna`,
+    spin_win: `🎉 *HAI VINTO!* 🎉
+───────────────────
+{board}
+───────────────────
+💸 Premio: *{reward} TON*
+💰 Nuovo saldo: {balance} TON`,
+    spin_lose: `💀 *HAI PERSO* 💀
+───────────────────
+{board}
+───────────────────
+📉 Perso: {bet} TON
+💰 Nuovo saldo: {balance} TON`,
 
     payment_processing: "Elaborazione pagamento...",
     payment_error: "Errore nella creazione della fattura. Riprova.",
@@ -358,12 +406,24 @@ export const translations: Record<Language, Translation> = {
 
     spin_insufficient:
       "❌ Solde insuffisant!\n\nVotre solde: {balance} TON\nRequis: {bet} TON",
-    spin_spinning:
-      "🎰 *TOURNE...* 🎰\n───────────────────\n❓ | ❓ | ❓\n───────────────────\n📉 Calcul de votre nouveau solde...\n💰 Voyons votre chance",
-    spin_win:
-      "🎉 *VOUS AVEZ GAGNÉ!* 🎉\n───────────────────\n{board}\n───────────────────\n💸 Récompense: *{reward} TON*\n💰 Nouveau solde: {balance} TON",
-    spin_lose:
-      "💀 *VOUS AVEZ PERDU* 💀\n───────────────────\n{board}\n───────────────────\n📉 Perdu: {bet} TON\n💰 Nouveau solde: {balance} TON",
+    spin_spinning: `🎰 *TOURNE...* 🎰
+───────────────────
+❓ | ❓ | ❓
+───────────────────
+📉 Calcul de votre nouveau solde...
+💰 Voyons votre chance`,
+    spin_win: `🎉 *VOUS AVEZ GAGNÉ!* 🎉
+───────────────────
+{board}
+───────────────────
+💸 Récompense: *{reward} TON*
+💰 Nouveau solde: {balance} TON`,
+    spin_lose: `💀 *VOUS AVEZ PERDU* 💀
+───────────────────
+{board}
+───────────────────
+📉 Perdu: {bet} TON
+💰 Nouveau solde: {balance} TON`,
 
     payment_processing: "Traitement du paiement...",
     payment_error: "Erreur lors de la création de la facture. Réessayez.",
@@ -433,12 +493,24 @@ export const translations: Record<Language, Translation> = {
 
     spin_insufficient:
       "❌ Недостаточно средств!\n\nВаш баланс: {balance} TON\nТребуется: {bet} TON",
-    spin_spinning:
-      "🎰 *КРУТИМ...* 🎰\n───────────────────\n❓ | ❓ | ❓\n───────────────────\n📉 Рассчитываем ваш новый баланс...\n💰 Посмотрим на вашу удачу",
-    spin_win:
-      "🎉 *ВЫ ВЫИГРАЛИ!* 🎉\n───────────────────\n{board}\n───────────────────\n💸 Награда: *{reward} TON*\n💰 Новый баланс: {balance} TON",
-    spin_lose:
-      "💀 *ВЫ ПРОИГРАЛИ* 💀\n───────────────────\n{board}\n───────────────────\n📉 Потеряно: {bet} TON\n💰 Новый баланс: {balance} TON",
+    spin_spinning: `🎰 *КРУТИМ...* 🎰
+───────────────────
+❓ | ❓ | ❓
+───────────────────
+📉 Рассчитываем ваш новый баланс...
+💰 Посмотрим на вашу удачу`,
+    spin_win: `🎉 *ВЫ ВЫИГРАЛИ!* 🎉
+───────────────────
+{board}
+───────────────────
+💸 Награда: *{reward} TON*
+💰 Новый баланс: {balance} TON`,
+    spin_lose: `💀 *ВЫ ПРОИГРАЛИ* 💀
+───────────────────
+{board}
+───────────────────
+📉 Потеряно: {bet} TON
+💰 Новый баланс: {balance} TON`,
 
     payment_processing: "Обработка платежа...",
     payment_error: "Ошибка создания счета. Попробуйте снова.",

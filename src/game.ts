@@ -1,14 +1,15 @@
 import { SymbolSlot, ActiveUpgrade, UpgradeEffect } from "./types";
 import { getUpgradeById } from "./upgrades";
+import { getLevelBonus } from "./levels";
 
 export const symbols: SymbolSlot[] = [
   { emoji: "🍒", multiplier: 4 },   // Common (1/8 win rate) - 50% return
   { emoji: "🍋", multiplier: 20 },  // Uncommon (1/125) - 16% return
   { emoji: "⭐", multiplier: 40 },  // Rare (1/296) - 13.6% return
   { emoji: "7️⃣", multiplier: 150 }, // Very Rare (1/8000) - 1.9% return
-  { emoji: "🇧", multiplier: 0 },    // Reel 1 Special
-  { emoji: "🇦", multiplier: 0 },    // Reel 2 Special
-  { emoji: "🇷", multiplier: 0 },    // Reel 3 Special
+  { emoji: "🎰", multiplier: 0 },    // Reel 1 Special
+  { emoji: "🎰", multiplier: 0 },    // Reel 2 Special
+  { emoji: "🎰", multiplier: 0 },    // Reel 3 Special
 ];
 
 // Helper to create strips with all symbols
@@ -84,12 +85,17 @@ export function spinSlots(activeUpgrades: ActiveUpgrade[] = []): SymbolSlot[] {
   ];
 }
 
-export function calculateReward(bet: number, result: SymbolSlot[], activeUpgrades: ActiveUpgrade[] = []): number {
+
+
+export function calculateReward(bet: number, result: SymbolSlot[], activeUpgrades: ActiveUpgrade[] = [], level: number = 1): number {
   const [a, b, c] = result;
   
   // Aggregate multiplier effects
   let totalMultiplier = 1;
   const symbolMultipliers: Record<string, number> = {};
+  
+  // Apply level bonus
+  totalMultiplier *= getLevelBonus(level);
   
   activeUpgrades.forEach(au => {
     if (!au.spinsRemaining || au.spinsRemaining <= 0) return;
@@ -106,16 +112,16 @@ export function calculateReward(bet: number, result: SymbolSlot[], activeUpgrade
     if (effect.barMultiplier) symbolMultipliers["BAR"] = (symbolMultipliers["BAR"] || 1) * effect.barMultiplier;
   });
 
-  // Special Jackpot: B - A - R
-  if (a.emoji === "🇧" && b.emoji === "🇦" && c.emoji === "🇷") {
+  // Special Jackpot: 🎰 🎰 🎰
+  if (a.emoji === "🎰" && b.emoji === "🎰" && c.emoji === "🎰") {
     const barMultiplier = symbolMultipliers["BAR"] || 1;
-    return bet * 100 * barMultiplier * totalMultiplier; // Apply BAR and universal multipliers
+    return Math.floor(bet * 100 * barMultiplier * totalMultiplier); // Apply BAR and universal multipliers
   }
 
   // Standard 3-of-a-kind
   if (a.emoji === b.emoji && b.emoji === c.emoji) {
     const symbolMultiplier = symbolMultipliers[a.emoji] || 1;
-    return bet * a.multiplier * symbolMultiplier * totalMultiplier;
+    return Math.floor(bet * a.multiplier * symbolMultiplier * totalMultiplier);
   }
   
   return 0;
