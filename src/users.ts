@@ -43,3 +43,8 @@ export function setUserLanguage(id: number, language: string) {
   user.language = language;
   saveUsers();
 }
+
+// Get all users (for broadcasting)
+export function getAllUsers(): User[] {
+  return Object.values(users);
+}

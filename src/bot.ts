@@ -1,5 +1,5 @@
 import { Telegraf } from "telegraf";
-import { getUser, updateUser } from "./users";
+import { getUser, updateUser, getAllUsers } from "./users";
 import { spinSlots, calculateReward } from "./game";
 import { t, Language } from "./translations";
 import { setUserLanguage } from "./users";
@@ -472,6 +472,77 @@ bot.command("cheat", (ctx) => {
 bot.command("id", (ctx) => {
   ctx.reply(`Your ID is: \`${ctx.from!.id}\``, { parse_mode: "Markdown" });
 });
+
+// Broadcast command (Admin only)
+bot.command("broadcast", async (ctx) => {
+  const adminId = parseInt(process.env.ADMIN_ID || "0");
+  if (ctx.from!.id !== adminId) {
+    return ctx.reply("❌ This command is only available to admins.");
+  }
+
+  // Get the message to broadcast (everything after /broadcast)
+  const message = ctx.message.text.replace("/broadcast", "").trim();
+  
+  if (!message) {
+    return ctx.reply(
+      `📢 *BROADCAST COMMAND* 📢\n\n` +
+      `Usage: \`/broadcast Your message here\`\n\n` +
+      `This will send your message to all bot users.\n` +
+      `Use Markdown formatting if needed.`,
+      { parse_mode: "Markdown" }
+    );
+  }
+
+  const users = getAllUsers();
+  const totalUsers = users.length;
+  
+  await ctx.reply(
+    `📢 Starting broadcast to ${totalUsers} users...\n` +
+    `This may take a while. I'll notify you when it's done.`
+  );
+
+  let successCount = 0;
+  let failCount = 0;
+  const failedUsers: number[] = [];
+
+  // Send to all users with rate limiting
+  for (let i = 0; i < users.length; i++) {
+    const user = users[i];
+    
+    try {
+      await ctx.telegram.sendMessage(user.id, message, { parse_mode: "Markdown" });
+      successCount++;
+      
+      // Rate limiting: wait 50ms between messages to avoid hitting Telegram limits
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
+      // Progress update every 50 users
+      if ((i + 1) % 50 === 0) {
+        await ctx.reply(`Progress: ${i + 1}/${totalUsers} users...`);
+      }
+    } catch (error) {
+      failCount++;
+      failedUsers.push(user.id);
+      console.error(`Failed to send to user ${user.id}:`, error);
+    }
+  }
+
+  // Final report
+  let report = `✅ *BROADCAST COMPLETE* ✅\n\n`;
+  report += `📊 *Results:*\n`;
+  report += `✅ Successful: ${successCount}\n`;
+  report += `❌ Failed: ${failCount}\n`;
+  report += `👥 Total: ${totalUsers}\n`;
+  
+  if (failedUsers.length > 0 && failedUsers.length <= 10) {
+    report += `\n⚠️ Failed user IDs: ${failedUsers.join(", ")}`;
+  } else if (failedUsers.length > 10) {
+    report += `\n⚠️ ${failedUsers.length} users failed (likely blocked the bot)`;
+  }
+
+  await ctx.reply(report, { parse_mode: "Markdown" });
+});
+
 
 // Shop command - show 3 random upgrades
 bot.command("shop", (ctx) => {
