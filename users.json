@@ -10,55 +10,56 @@
   },
   "7068184183": {
     "id": 7068184183,
-    "balance": 118105,
-    "language": "en",
-    "consecutiveDays": 2,
-    "totalLoginDays": 2,
-    "lastLoginDate": "2025-12-06",
+    "balance": 114705,
+    "language": "es",
+    "consecutiveDays": 3,
+    "totalLoginDays": 3,
+    "lastLoginDate": "2025-12-07",
     "lastBet": 100,
     "shopOffers": [
-      57,
-      90,
-      22
+      34,
+      2,
+      20
     ],
-    "xp": 415,
+    "xp": 715,
     "dailyGoals": [
       {
-        "id": "u7fr6j",
-        "type": "loss_streak",
-        "target": 8,
-        "current": 8,
-        "completed": true,
-        "rewardXp": 80,
-        "rewardCredits": 400,
-        "description": "Lose 8 times in a row (Survivor)"
+        "id": "18vtzt",
+        "type": "win_big",
+        "target": 3,
+        "current": 0,
+        "completed": false,
+        "rewardXp": 150,
+        "rewardCredits": 600,
+        "description": "Get 3 big wins (40x or more)"
       },
       {
-        "id": "j3izgs",
-        "type": "bet_total",
-        "target": 2000,
-        "current": 2000,
-        "completed": true,
-        "rewardXp": 100,
-        "rewardCredits": 200,
-        "description": "Bet a total of 2000 TON"
-      },
-      {
-        "id": "lccgjs",
+        "id": "hxuxuq",
         "type": "spin_count",
-        "target": 90,
-        "current": 90,
-        "completed": true,
-        "rewardXp": 45,
-        "rewardCredits": 180,
-        "description": "Spin the slot machine 90 times"
+        "target": 80,
+        "current": 28,
+        "completed": false,
+        "rewardXp": 40,
+        "rewardCredits": 160,
+        "description": "Spin the slot machine 80 times"
+      },
+      {
+        "id": "inrdnb",
+        "type": "win_count",
+        "target": 20,
+        "current": 3,
+        "completed": false,
+        "rewardXp": 40,
+        "rewardCredits": 100,
+        "description": "Win 20 times"
       }
     ],
-    "level": 3,
+    "level": 4,
     "activeUpgrades": [],
-    "isSpinning": true,
-    "totalSpins": 7,
-    "totalWins": 2,
-    "totalWinnings": 800
+    "isSpinning": false,
+    "totalSpins": 35,
+    "totalWins": 5,
+    "totalWinnings": 3600,
+    "spinLockTime": 1765113804202
   }
 }

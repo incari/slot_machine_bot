@@ -6,10 +6,10 @@ export const symbols: SymbolSlot[] = [
   { emoji: "🍒", multiplier: 4 },   // Common (1/8 win rate) - 50% return
   { emoji: "🍋", multiplier: 20 },  // Uncommon (1/125) - 16% return
   { emoji: "⭐", multiplier: 40 },  // Rare (1/296) - 13.6% return
-  { emoji: "🎰", multiplier: 150 }, // Very Rare (1/8000) - 1.9% return
-  { emoji: "7️⃣", multiplier: 0 },    // Reel 1 Special (Jackpot)
-  { emoji: "7️⃣", multiplier: 0 },    // Reel 2 Special (Jackpot)
-  { emoji: "7️⃣", multiplier: 0 },    // Reel 3 Special (Jackpot)
+  { emoji: "7️⃣", multiplier: 150 }, // Very Rare (1/8000) - 1.9% return
+  { emoji: "🎰", multiplier: 0 },    // Reel 1 Special (Jackpot)
+  { emoji: "🎰", multiplier: 0 },    // Reel 2 Special (Jackpot)
+  { emoji: "🎰", multiplier: 0 },    // Reel 3 Special (Jackpot)
 ];
 
 // Helper to create strips with all symbols
@@ -108,12 +108,12 @@ export function calculateReward(bet: number, result: SymbolSlot[], activeUpgrade
     if (effect.cherryMultiplier) symbolMultipliers["🍒"] = (symbolMultipliers["🍒"] || 1) * effect.cherryMultiplier;
     if (effect.lemonMultiplier) symbolMultipliers["🍋"] = (symbolMultipliers["🍋"] || 1) * effect.lemonMultiplier;
     if (effect.starMultiplier) symbolMultipliers["⭐"] = (symbolMultipliers["⭐"] || 1) * effect.starMultiplier;
-    if (effect.sevenMultiplier) symbolMultipliers["🎰"] = (symbolMultipliers["🎰"] || 1) * effect.sevenMultiplier; // "Seven" upgrade now applies to "Slot" symbol
+    if (effect.sevenMultiplier) symbolMultipliers["7️⃣"] = (symbolMultipliers["7️⃣"] || 1) * effect.sevenMultiplier;
     if (effect.barMultiplier) symbolMultipliers["BAR"] = (symbolMultipliers["BAR"] || 1) * effect.barMultiplier;
   });
 
-  // Special Jackpot: 7️⃣ 7️⃣ 7️⃣
-  if (a.emoji === "7️⃣" && b.emoji === "7️⃣" && c.emoji === "7️⃣") {
+  // Special Jackpot: 🎰 🎰 🎰
+  if (a.emoji === "🎰" && b.emoji === "🎰" && c.emoji === "🎰") {
     // Returns 0 here because the Global Jackpot logic in bot.ts handles the payout
     return 0; 
   }

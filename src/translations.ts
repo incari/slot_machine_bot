@@ -9,6 +9,83 @@ export const translations: Record<Language, Translation> = {
     // Commands
     start_welcome:
       "🎰 Welcome to the Credits Slot Machine!\nYour balance: {balance} Credits\n\n*Choose your bet:*",
+    
+    welcome_guide: `🎰 *WELCOME TO CREDITS SLOT MACHINE!* 🎰
+
+━━━━━━━━━━━━━━━━━━━━━
+🎮 *HOW TO PLAY*
+━━━━━━━━━━━━━━━━━━━━━
+Choose your bet (10, 50, or 100 credits) and spin! Match 3 symbols to win big!
+
+━━━━━━━━━━━━━━━━━━━━━
+💰 *HOW TO WIN*
+━━━━━━━━━━━━━━━━━━━━━
+🍒🍒🍒 - 4x your bet (12.5% chance)
+🍋🍋🍋 - 20x your bet (0.8% chance)
+⭐⭐⭐ - 40x your bet (0.34% chance)
+7️⃣7️⃣7️⃣ - 150x your bet (0.1% chance)
+🎰🎰🎰 - *GLOBAL JACKPOT!* (0.0125%)
+
+━━━━━━━━━━━━━━━━━━━━━
+🏆 *GLOBAL JACKPOT*
+━━━━━━━━━━━━━━━━━━━━━
+• 1% of every bet grows the jackpot pool
+• Hit 🎰🎰🎰 to win the ENTIRE pool!
+• Check current pool: /jackpot
+
+━━━━━━━━━━━━━━━━━━━━━
+🏪 *UPGRADE SHOP*
+━━━━━━━━━━━━━━━━━━━━━
+• Buy upgrades to boost your odds!
+• Increase win probabilities
+• Get multipliers & insurance
+• Access shop: /shop
+
+━━━━━━━━━━━━━━━━━━━━━
+⚡ *XP & LEVELING SYSTEM*
+━━━━━━━━━━━━━━━━━━━━━
+• Earn XP with every spin
+• Level up for passive bonuses
+• Higher levels = bigger rewards!
+• View profile: /profile
+
+━━━━━━━━━━━━━━━━━━━━━
+🎯 *DAILY GOALS*
+━━━━━━━━━━━━━━━━━━━━━
+• Complete daily challenges
+• Earn bonus XP & Credits
+• New goals every day!
+• Check goals: /goals
+
+━━━━━━━━━━━━━━━━━━━━━
+🔥 *DAILY LOGIN BONUS*
+━━━━━━━━━━━━━━━━━━━━━
+• Login daily for free credits
+• Build streaks for bigger bonuses
+• Don't break your streak!
+• Check status: /daily
+
+━━━━━━━━━━━━━━━━━━━━━
+🤝 *SHARE TO WIN CREDITS*
+━━━━━━━━━━━━━━━━━━━━━
+• Invite friends with your link
+• Both you & friend get rewards!
+• Earn credits + XP per referral
+• Get link: /invite
+
+━━━━━━━━━━━━━━━━━━━━━
+💎 *BUY MORE CREDITS*
+━━━━━━━━━━━━━━━━━━━━━
+• Purchase with Telegram Stars
+• Get bonus credits on larger packs
+• Safe & secure payment
+• Buy now: /buy
+
+━━━━━━━━━━━━━━━━━━━━━
+
+🎲 *Ready to spin?* Use the buttons below or type /spin to get started!
+
+💡 *Tip:* Start with daily login bonus and complete goals for free credits!`,
     help_title: "📜 *Command List* 📜\n\n",
     help_start: "/start - Start the bot and view balance\n",
     help_balance: "/balance - View your current balance\n",
@@ -40,13 +117,18 @@ export const translations: Record<Language, Translation> = {
     info_star:
       "⭐⭐⭐ - 40x your bet\n├ Probability: 0.34% (1 in 296)\n└ Example: Bet 10 → Win 400\n\n",
     info_seven:
-      "7️⃣7️⃣7️⃣ - 150x your bet\n├ Probability: 0.0125% (1 in 8,000)\n└ Example: Bet 10 → Win 1,500\n\n",
+      "7️⃣7️⃣7️⃣ - 150x your bet\n├ Probability: 0.1% (1 in 1,000)\n└ Example: Bet 10 → Win 1,500\n\n",
     info_jackpot:
-      "🇧🇦🇷 JACKPOT - 100x your bet\n├ Probability: 0.1% (1 in 1,000)\n└ Example: Bet 10 → Win 1,000\n\n",
+      "🎰🎰🎰 GLOBAL JACKPOT - Win the entire pool!\n├ Probability: 0.0125% (1 in 8,000)\n└ Example: Pool at 50,000 → Win 50,000\n\n",
     info_stats:
       "*Statistics:*\n• Win rate: ~13.7%\n• RTP (Return to player): ~91.5%\n• House edge: ~8.5%\n\n",
     info_disclaimer:
       "⚠️ *Note:* Credits have no cash value.\nThis is an entertainment game.",
+
+    // Jackpot
+    jackpot_title: "🎰 *GLOBAL JACKPOT* 🎰",
+    jackpot_pool: "Current Pool: *{amount} Credits*",
+    jackpot_info: "Spin to win! 1% of every bet grows the pot.\nHit 🎰 | 🎰 | 🎰 to win it all!",
 
     // Language
     language_select:
@@ -61,7 +143,9 @@ export const translations: Record<Language, Translation> = {
 ❓ | ❓ | ❓
 ───────────
 📉 Calculating your new balance...
-💰 Let's see your luck`,
+💰 Let's see your luck
+
+ 🎰 Checking jackpot...`,
     spin_win: `🎉 *YOU WON!* 🎉
 ─────────── 
 {board}
@@ -104,6 +188,83 @@ export const translations: Record<Language, Translation> = {
     // Commands
     start_welcome:
       "🎰 ¡Bienvenido a la tragamonedas Credits!\nTu balance: {balance} Credits\n\n*Elige tu apuesta:*",
+    
+    welcome_guide: `🎰 *¡BIENVENIDO A CREDITS SLOT MACHINE!* 🎰
+
+━━━━━━━━━━━━━━━━━━━━━
+🎮 *CÓMO JUGAR*
+━━━━━━━━━━━━━━━━━━━━━
+¡Elige tu apuesta (10, 50 o 100 créditos) y gira! ¡Combina 3 símbolos para ganar en grande!
+
+━━━━━━━━━━━━━━━━━━━━━
+💰 *CÓMO GANAR*
+━━━━━━━━━━━━━━━━━━━━━
+🍒🍒🍒 - 4x tu apuesta (12.5% probabilidad)
+🍋🍋🍋 - 20x tu apuesta (0.8% probabilidad)
+⭐⭐⭐ - 40x tu apuesta (0.34% probabilidad)
+7️⃣7️⃣7️⃣ - 150x tu apuesta (0.1% probabilidad)
+🎰🎰🎰 - *¡BOTE GLOBAL!* (0.0125%)
+
+━━━━━━━━━━━━━━━━━━━━━
+🏆 *BOTE GLOBAL*
+━━━━━━━━━━━━━━━━━━━━━
+• El 1% de cada apuesta aumenta el bote
+• ¡Consigue 🎰🎰🎰 para ganar TODO el bote!
+• Ver bote actual: /jackpot
+
+━━━━━━━━━━━━━━━━━━━━━
+🏪 *TIENDA DE MEJORAS*
+━━━━━━━━━━━━━━━━━━━━━
+• ¡Compra mejoras para aumentar tus probabilidades!
+• Aumenta probabilidades de victoria
+• Obtén multiplicadores y seguro
+• Acceder a tienda: /shop
+
+━━━━━━━━━━━━━━━━━━━━━
+⚡ *SISTEMA DE XP Y NIVELES*
+━━━━━━━━━━━━━━━━━━━━━
+• Gana XP con cada giro
+• Sube de nivel para bonos pasivos
+• ¡Niveles más altos = recompensas mayores!
+• Ver perfil: /profile
+
+━━━━━━━━━━━━━━━━━━━━━
+🎯 *OBJETIVOS DIARIOS*
+━━━━━━━━━━━━━━━━━━━━━
+• Completa desafíos diarios
+• Gana XP y Créditos bonus
+• ¡Nuevos objetivos cada día!
+• Ver objetivos: /goals
+
+━━━━━━━━━━━━━━━━━━━━━
+🔥 *BONO DE INICIO DIARIO*
+━━━━━━━━━━━━━━━━━━━━━
+• Inicia sesión diariamente para créditos gratis
+• Construye rachas para bonos mayores
+• ¡No rompas tu racha!
+• Ver estado: /daily
+
+━━━━━━━━━━━━━━━━━━━━━
+🤝 *COMPARTE PARA GANAR CRÉDITOS*
+━━━━━━━━━━━━━━━━━━━━━
+• Invita amigos con tu enlace
+• ¡Tú y tu amigo reciben recompensas!
+• Gana créditos + XP por referido
+• Obtener enlace: /invite
+
+━━━━━━━━━━━━━━━━━━━━━
+💎 *COMPRAR MÁS CRÉDITOS*
+━━━━━━━━━━━━━━━━━━━━━
+• Compra con Telegram Stars
+• Obtén créditos bonus en paquetes grandes
+• Pago seguro y protegido
+• Comprar ahora: /buy
+
+━━━━━━━━━━━━━━━━━━━━━
+
+🎲 *¿Listo para girar?* ¡Usa los botones de abajo o escribe /spin para comenzar!
+
+💡 *Consejo:* ¡Comienza con el bono de inicio diario y completa objetivos para créditos gratis!`,
     help_title: "📜 *Lista de Comandos* 📜\n\n",
     help_start: "/start - Iniciar el bot y ver balance\n",
     help_balance: "/balance - Ver tu saldo actual\n",
@@ -132,13 +293,18 @@ export const translations: Record<Language, Translation> = {
     info_star:
       "⭐⭐⭐ - 40x tu apuesta\n├ Probabilidad: 0.34% (1 de cada 296)\n└ Ejemplo: Apuesta 10 → Ganas 400\n\n",
     info_seven:
-      "7️⃣7️⃣7️⃣ - 150x tu apuesta\n├ Probabilidad: 0.0125% (1 de cada 8,000)\n└ Ejemplo: Apuesta 10 → Ganas 1,500\n\n",
+      "7️⃣7️⃣7️⃣ - 150x tu apuesta\n├ Probabilidad: 0.1% (1 en 1,000)\n└ Ejemplo: Apuesta 10 → Gana 1,500\n\n",
     info_jackpot:
-      "🇧🇦🇷 JACKPOT - 100x tu apuesta\n├ Probabilidad: 0.1% (1 de cada 1,000)\n└ Ejemplo: Apuesta 10 → Ganas 1,000\n\n",
+      "🎰🎰🎰 BOTE GLOBAL - ¡Gana todo el bote!\n├ Probabilidad: 0.0125% (1 en 8,000)\n└ Ejemplo: Bote en 50,000 → Gana 50,000\n\n",
     info_stats:
       "*Estadísticas:*\n• Tasa de victoria: ~13.7%\n• RTP (Retorno al jugador): ~91.5%\n• Ventaja de la casa: ~8.5%\n\n",
     info_disclaimer:
       "⚠️ *Nota:* Los créditos no tienen valor en efectivo.\nEste es un juego de entretenimiento.",
+
+    // Jackpot
+    jackpot_title: "🎰 *BOTE GLOBAL* 🎰",
+    jackpot_pool: "Bote Actual: *{amount} Créditos*",
+    jackpot_info: "¡Gira para ganar! El 1% de cada apuesta aumenta el bote.\n¡Consigue 🎰 | 🎰 | 🎰 para ganarlo todo!",
 
     language_select: "🌍 *Seleccionar Idioma* 🌍\n\nElige tu idioma preferido:",
     language_changed: "✅ ¡Idioma cambiado a Español!",
@@ -150,7 +316,9 @@ export const translations: Record<Language, Translation> = {
 ❓ | ❓ | ❓
 ───────────────────
 📉 Calculando tu nuevo balance...
-💰 Veamos tu suerte`,
+💰 Veamos tu suerte
+
+ 🎰 Comprobando jackpot...`,
     spin_win: `🎉 *¡GANASTE!* 🎉
 ───────────────────
 {board}
@@ -190,6 +358,83 @@ export const translations: Record<Language, Translation> = {
   de: {
     start_welcome:
       "🎰 Willkommen beim Credits Spielautomaten!\nDein Guthaben: {balance} Credits\n\n*Wähle deinen Einsatz:*",
+    
+    welcome_guide: `🎰 *WILLKOMMEN BEI CREDITS SLOT MACHINE!* 🎰
+
+━━━━━━━━━━━━━━━━━━━━━
+🎮 *WIE MAN SPIELT*
+━━━━━━━━━━━━━━━━━━━━━
+Wähle deinen Einsatz (10, 50 oder 100 Credits) und drehe! Kombiniere 3 Symbole für große Gewinne!
+
+━━━━━━━━━━━━━━━━━━━━━
+💰 *WIE MAN GEWINNT*
+━━━━━━━━━━━━━━━━━━━━━
+🍒🍒🍒 - 4x dein Einsatz (12.5% Chance)
+🍋🍋🍋 - 20x dein Einsatz (0.8% Chance)
+⭐⭐⭐ - 40x dein Einsatz (0.34% Chance)
+7️⃣7️⃣7️⃣ - 150x dein Einsatz (0.1% Chance)
+🎰🎰🎰 - *GLOBALER JACKPOT!* (0.0125%)
+
+━━━━━━━━━━━━━━━━━━━━━
+🏆 *GLOBALER JACKPOT*
+━━━━━━━━━━━━━━━━━━━━━
+• 1% jeder Wette lässt den Jackpot wachsen
+• Erhalte 🎰🎰🎰 um den GESAMTEN Pool zu gewinnen!
+• Aktuellen Pool prüfen: /jackpot
+
+━━━━━━━━━━━━━━━━━━━━━
+🏪 *UPGRADE-SHOP*
+━━━━━━━━━━━━━━━━━━━━━
+• Kaufe Upgrades um deine Chancen zu verbessern!
+• Erhöhe Gewinnwahrscheinlichkeiten
+• Erhalte Multiplikatoren & Versicherung
+• Shop öffnen: /shop
+
+━━━━━━━━━━━━━━━━━━━━━
+⚡ *XP & LEVEL-SYSTEM*
+━━━━━━━━━━━━━━━━━━━━━
+• Verdiene XP mit jedem Dreh
+• Steige auf für passive Boni
+• Höhere Level = größere Belohnungen!
+• Profil ansehen: /profile
+
+━━━━━━━━━━━━━━━━━━━━━
+🎯 *TÄGLICHE ZIELE*
+━━━━━━━━━━━━━━━━━━━━━
+• Erfülle tägliche Herausforderungen
+• Verdiene Bonus-XP & Credits
+• Jeden Tag neue Ziele!
+• Ziele prüfen: /goals
+
+━━━━━━━━━━━━━━━━━━━━━
+🔥 *TÄGLICHER LOGIN-BONUS*
+━━━━━━━━━━━━━━━━━━━━━
+• Melde dich täglich an für gratis Credits
+• Baue Serien auf für größere Boni
+• Unterbreche deine Serie nicht!
+• Status prüfen: /daily
+
+━━━━━━━━━━━━━━━━━━━━━
+🤝 *TEILEN FÜR CREDITS*
+━━━━━━━━━━━━━━━━━━━━━
+• Lade Freunde mit deinem Link ein
+• Du & dein Freund erhalten Belohnungen!
+• Verdiene Credits + XP pro Empfehlung
+• Link erhalten: /invite
+
+━━━━━━━━━━━━━━━━━━━━━
+💎 *MEHR CREDITS KAUFEN*
+━━━━━━━━━━━━━━━━━━━━━
+• Kaufe mit Telegram Stars
+• Erhalte Bonus-Credits bei größeren Paketen
+• Sichere Zahlung
+• Jetzt kaufen: /buy
+
+━━━━━━━━━━━━━━━━━━━━━
+
+🎲 *Bereit zum Drehen?* Nutze die Buttons unten oder tippe /spin um zu starten!
+
+💡 *Tipp:* Beginne mit dem täglichen Login-Bonus und erfülle Ziele für gratis Credits!`,
     help_title: "📜 *Befehlsliste* 📜\n\n",
     help_start: "/start - Bot starten und Guthaben anzeigen\n",
     help_balance: "/balance - Aktuelles Guthaben anzeigen\n",
@@ -218,13 +463,18 @@ export const translations: Record<Language, Translation> = {
     info_star:
       "⭐⭐⭐ - 40x dein Einsatz\n├ Wahrscheinlichkeit: 0,34% (1 von 296)\n└ Beispiel: Einsatz 10 → Gewinn 400\n\n",
     info_seven:
-      "7️⃣7️⃣7️⃣ - 150x dein Einsatz\n├ Wahrscheinlichkeit: 0,0125% (1 von 8.000)\n└ Beispiel: Einsatz 10 → Gewinn 1.500\n\n",
+      "7️⃣7️⃣7️⃣ - 150x Ihren Einsatz\n├ Wahrscheinlichkeit: 0.1% (1 zu 1,000)\n└ Beispiel: Einsatz 10 → Gewinn 1,500\n\n",
     info_jackpot:
-      "🇧🇦🇷 JACKPOT - 100x dein Einsatz\n├ Wahrscheinlichkeit: 0,1% (1 von 1.000)\n└ Beispiel: Einsatz 10 → Gewinn 1.000\n\n",
+      "🎰🎰🎰 GLOBALER JACKPOT - Gewinnen Sie den gesamten Pool!\n├ Wahrscheinlichkeit: 0.0125% (1 zu 8,000)\n└ Beispiel: Pool bei 50,000 → Gewinn 50,000\n\n",
     info_stats:
       "*Statistiken:*\n• Gewinnrate: ~13,7%\n• RTP (Return to Player): ~91,5%\n• Hausvorteil: ~8,5%\n\n",
     info_disclaimer:
       "⚠️ *Hinweis:* Credits haben keinen Barwert.\nDies ist ein Unterhaltungsspiel.",
+
+    // Jackpot
+    jackpot_title: "🎰 *GLOBALER JACKPOT* 🎰",
+    jackpot_pool: "Aktueller Pool: *{amount} Credits*",
+    jackpot_info: "Drehen Sie, um zu gewinnen! 1% jeder Wette lässt den Pot wachsen.\nErhalten Sie 🎰 | 🎰 | 🎰, um alles zu gewinnen!",
 
     language_select:
       "🌍 *Sprache wählen* 🌍\n\nWähle deine bevorzugte Sprache:",
@@ -237,7 +487,9 @@ export const translations: Record<Language, Translation> = {
 ❓ | ❓ | ❓
 ───────────────────
 📉 Berechne dein neues Guthaben...
-💰 Mal sehen, was das Glück bringt`,
+💰 Mal sehen, was das Glück bringt
+
+ 🎰 Jackpot prüfen...`,
     spin_win: `🎉 *GEWONNEN!* 🎉
 ───────────────────
 {board}
@@ -266,7 +518,7 @@ export const translations: Record<Language, Translation> = {
     daily_bonus_streak_broken:
       "{emoji} *TÄGLICHER BONUS!* {emoji}\n\n🎁 Du hast erhalten: *{bonus} Credits*\n💔 Deine Serie wurde unterbrochen!\n🔥 Neue Serie: *1 Tag*\n💰 Neues Guthaben: {balance} Credits\n\n✨ Melde dich täglich an, um eine größere Serie aufzubauen!",
     daily_bonus_already_claimed:
-      "⏰ *Heute bereits beansprucht!*\n\n🔥 Aktuelle Serie: *{streak} Tage*\n💰 Dein Guthaben: {balance} Credits\n\n✨ Komm morgen für deinen nächsten Bonus zurück!",
+      "⏰ *Heute bereits beansprucht!*\n\n🔥 Aktuelle Serie: *{streak} Tage*\n💰 Dein Guthaben: {balance} Credits\n\n✨ Komm morgen für deinen nächsten Bonus!",
     daily_status:
       "📅 *TÄGLICHER LOGIN-STATUS*\n\n🔥 Aktuelle Serie: *{streak} Tage*\n📊 Gesamt Login-Tage: *{total} Tage*\n💰 Aktuelles Guthaben: {balance} Credits\n\n🎁 Nächster Bonus: *{nextBonus} Credits*\n⏰ {status}\n\n✨ Melde dich jeden Tag an, um deine Belohnungen zu maximieren!",
     daily_status_available: "Jetzt verfügbar! Verwende /start zum Beanspruchen",
@@ -277,6 +529,83 @@ export const translations: Record<Language, Translation> = {
   it: {
     start_welcome:
       "🎰 Benvenuto alla Slot Machine Credits!\nIl tuo saldo: {balance} Credits\n\n*Scegli la tua puntata:*",
+    
+    welcome_guide: `🎰 *BENVENUTO A CREDITS SLOT MACHINE!* 🎰
+
+━━━━━━━━━━━━━━━━━━━━━
+🎮 *COME GIOCARE*
+━━━━━━━━━━━━━━━━━━━━━
+Scegli la tua puntata (10, 50 o 100 crediti) e gira! Combina 3 simboli per vincere alla grande!
+
+━━━━━━━━━━━━━━━━━━━━━
+💰 *COME VINCERE*
+━━━━━━━━━━━━━━━━━━━━━
+🍒🍒🍒 - 4x la tua puntata (12.5% probabilità)
+🍋🍋🍋 - 20x la tua puntata (0.8% probabilità)
+⭐⭐⭐ - 40x la tua puntata (0.34% probabilità)
+7️⃣7️⃣7️⃣ - 150x la tua puntata (0.1% probabilità)
+🎰🎰🎰 - *JACKPOT GLOBALE!* (0.0125%)
+
+━━━━━━━━━━━━━━━━━━━━━
+🏆 *JACKPOT GLOBALE*
+━━━━━━━━━━━━━━━━━━━━━
+• L'1% di ogni scommessa fa crescere il jackpot
+• Ottieni 🎰🎰🎰 per vincere TUTTO il montepremi!
+• Controlla montepremi attuale: /jackpot
+
+━━━━━━━━━━━━━━━━━━━━━
+🏪 *NEGOZIO UPGRADE*
+━━━━━━━━━━━━━━━━━━━━━
+• Acquista upgrade per migliorare le tue probabilità!
+• Aumenta probabilità di vittoria
+• Ottieni moltiplicatori e assicurazione
+• Accedi al negozio: /shop
+
+━━━━━━━━━━━━━━━━━━━━━
+⚡ *SISTEMA XP E LIVELLI*
+━━━━━━━━━━━━━━━━━━━━━
+• Guadagna XP ad ogni giro
+• Sali di livello per bonus passivi
+• Livelli più alti = ricompense maggiori!
+• Visualizza profilo: /profile
+
+━━━━━━━━━━━━━━━━━━━━━
+🎯 *OBIETTIVI GIORNALIERI*
+━━━━━━━━━━━━━━━━━━━━━
+• Completa sfide giornaliere
+• Guadagna XP e Crediti bonus
+• Nuovi obiettivi ogni giorno!
+• Controlla obiettivi: /goals
+
+━━━━━━━━━━━━━━━━━━━━━
+🔥 *BONUS ACCESSO GIORNALIERO*
+━━━━━━━━━━━━━━━━━━━━━
+• Accedi ogni giorno per crediti gratis
+• Costruisci serie per bonus maggiori
+• Non interrompere la tua serie!
+• Controlla stato: /daily
+
+━━━━━━━━━━━━━━━━━━━━━
+🤝 *CONDIVIDI PER VINCERE CREDITI*
+━━━━━━━━━━━━━━━━━━━━━
+• Invita amici con il tuo link
+• Tu e il tuo amico ricevete ricompense!
+• Guadagna crediti + XP per referral
+• Ottieni link: /invite
+
+━━━━━━━━━━━━━━━━━━━━━
+💎 *ACQUISTA PIÙ CREDITI*
+━━━━━━━━━━━━━━━━━━━━━
+• Acquista con Telegram Stars
+• Ottieni crediti bonus su pacchetti grandi
+• Pagamento sicuro e protetto
+• Acquista ora: /buy
+
+━━━━━━━━━━━━━━━━━━━━━
+
+🎲 *Pronto a girare?* Usa i pulsanti qui sotto o digita /spin per iniziare!
+
+💡 *Suggerimento:* Inizia con il bonus di accesso giornaliero e completa obiettivi per crediti gratis!`,
     help_title: "📜 *Elenco Comandi* 📜\n\n",
     help_start: "/start - Avvia il bot e visualizza il saldo\n",
     help_balance: "/balance - Visualizza il saldo attuale\n",
@@ -305,13 +634,18 @@ export const translations: Record<Language, Translation> = {
     info_star:
       "⭐⭐⭐ - 40x la tua puntata\n├ Probabilità: 0,34% (1 su 296)\n└ Esempio: Puntata 10 → Vinci 400\n\n",
     info_seven:
-      "7️⃣7️⃣7️⃣ - 150x la tua puntata\n├ Probabilità: 0,0125% (1 su 8.000)\n└ Esempio: Puntata 10 → Vinci 1.500\n\n",
+      "7️⃣7️⃣7️⃣ - 150x la tua scommessa\n├ Probabilità: 0.1% (1 su 1,000)\n└ Esempio: Scommessa 10 → Vinci 1,500\n\n",
     info_jackpot:
-      "🇧🇦🇷 JACKPOT - 100x la tua puntata\n├ Probabilità: 0,1% (1 su 1.000)\n└ Esempio: Puntata 10 → Vinci 1.000\n\n",
+      "🎰🎰🎰 JACKPOT GLOBALE - Vinci l'intero montepremi!\n├ Probabilità: 0.0125% (1 su 8,000)\n└ Esempio: Pool a 50,000 → Vinci 50,000\n\n",
     info_stats:
       "*Statistiche:*\n• Tasso di vittoria: ~13,7%\n• RTP (Ritorno al giocatore): ~91,5%\n• Vantaggio del banco: ~8,5%\n\n",
     info_disclaimer:
       "⚠️ *Nota:* I crediti non hanno valore in denaro.\nQuesto è un gioco di intrattenimento.",
+
+    // Jackpot
+    jackpot_title: "🎰 *JACKPOT GLOBALE* 🎰",
+    jackpot_pool: "Pool Attuale: *{amount} Crediti*",
+    jackpot_info: "Gira per vincere! L'1% di ogni scommessa fa crescere il montepremi.\nOttieni 🎰 | 🎰 | 🎰 per vincere tutto!",
 
     language_select:
       "🌍 *Seleziona Lingua* 🌍\n\nScegli la tua lingua preferita:",
@@ -324,7 +658,9 @@ export const translations: Record<Language, Translation> = {
 ❓ | ❓ | ❓
 ───────────────────
 📉 Calcolo del nuovo saldo...
-💰 Vediamo la tua fortuna`,
+💰 Vediamo la tua fortuna
+
+ 🎰 Controllo jackpot...`,
     spin_win: `🎉 *HAI VINTO!* 🎉
 ───────────────────
 {board}
@@ -364,6 +700,83 @@ export const translations: Record<Language, Translation> = {
   fr: {
     start_welcome:
       "🎰 Bienvenue à la Machine à Sous Credits!\nVotre solde: {balance} Credits\n\n*Choisissez votre mise:*",
+    
+    welcome_guide: `🎰 *BIENVENUE À CREDITS SLOT MACHINE!* 🎰
+
+━━━━━━━━━━━━━━━━━━━━━
+🎮 *COMMENT JOUER*
+━━━━━━━━━━━━━━━━━━━━━
+Choisissez votre mise (10, 50 ou 100 crédits) et tournez! Combinez 3 symboles pour gagner gros!
+
+━━━━━━━━━━━━━━━━━━━━━
+💰 *COMMENT GAGNER*
+━━━━━━━━━━━━━━━━━━━━━
+🍒🍒🍒 - 4x votre mise (12.5% chance)
+🍋🍋🍋 - 20x votre mise (0.8% chance)
+⭐⭐⭐ - 40x votre mise (0.34% chance)
+7️⃣7️⃣7️⃣ - 150x votre mise (0.1% chance)
+🎰🎰🎰 - *JACKPOT MONDIAL!* (0.0125%)
+
+━━━━━━━━━━━━━━━━━━━━━
+🏆 *JACKPOT MONDIAL*
+━━━━━━━━━━━━━━━━━━━━━
+• 1% de chaque mise fait grossir le jackpot
+• Obtenez 🎰🎰🎰 pour gagner TOUTE la cagnotte!
+• Vérifier cagnotte actuelle: /jackpot
+
+━━━━━━━━━━━━━━━━━━━━━
+🏪 *BOUTIQUE D'AMÉLIORATIONS*
+━━━━━━━━━━━━━━━━━━━━━
+• Achetez des améliorations pour booster vos chances!
+• Augmentez probabilités de victoire
+• Obtenez multiplicateurs & assurance
+• Accéder boutique: /shop
+
+━━━━━━━━━━━━━━━━━━━━━
+⚡ *SYSTÈME XP & NIVEAUX*
+━━━━━━━━━━━━━━━━━━━━━
+• Gagnez XP à chaque tour
+• Montez de niveau pour bonus passifs
+• Niveaux plus élevés = récompenses plus grandes!
+• Voir profil: /profile
+
+━━━━━━━━━━━━━━━━━━━━━
+🎯 *OBJECTIFS QUOTIDIENS*
+━━━━━━━━━━━━━━━━━━━━━
+• Complétez défis quotidiens
+• Gagnez XP et Crédits bonus
+• Nouveaux objectifs chaque jour!
+• Vérifier objectifs: /goals
+
+━━━━━━━━━━━━━━━━━━━━━
+🔥 *BONUS CONNEXION QUOTIDIEN*
+━━━━━━━━━━━━━━━━━━━━━
+• Connectez-vous chaque jour pour crédits gratuits
+• Construisez séries pour bonus plus grands
+• Ne cassez pas votre série!
+• Vérifier statut: /daily
+
+━━━━━━━━━━━━━━━━━━━━━
+🤝 *PARTAGEZ POUR GAGNER CRÉDITS*
+━━━━━━━━━━━━━━━━━━━━━
+• Invitez amis avec votre lien
+• Vous et votre ami recevez récompenses!
+• Gagnez crédits + XP par parrainage
+• Obtenir lien: /invite
+
+━━━━━━━━━━━━━━━━━━━━━
+💎 *ACHETER PLUS DE CRÉDITS*
+━━━━━━━━━━━━━━━━━━━━━
+• Achetez avec Telegram Stars
+• Obtenez crédits bonus sur grands packs
+• Paiement sécurisé
+• Acheter maintenant: /buy
+
+━━━━━━━━━━━━━━━━━━━━━
+
+🎲 *Prêt à tourner?* Utilisez les boutons ci-dessous ou tapez /spin pour commencer!
+
+💡 *Astuce:* Commencez avec le bonus de connexion quotidien et complétez objectifs pour crédits gratuits!`,
     help_title: "📜 *Liste des Commandes* 📜\n\n",
     help_start: "/start - Démarrer le bot et voir le solde\n",
     help_balance: "/balance - Voir votre solde actuel\n",
@@ -392,13 +805,18 @@ export const translations: Record<Language, Translation> = {
     info_star:
       "⭐⭐⭐ - 40x votre mise\n├ Probabilité: 0,34% (1 sur 296)\n└ Exemple: Mise 10 → Gain 400\n\n",
     info_seven:
-      "7️⃣7️⃣7️⃣ - 150x votre mise\n├ Probabilité: 0,0125% (1 sur 8.000)\n└ Exemple: Mise 10 → Gain 1.500\n\n",
+      "7️⃣7️⃣7️⃣ - 150x votre mise\n├ Probabilité : 0.1% (1 sur 1,000)\n└ Exemple : Mise 10 → Gain 1,500\n\n",
     info_jackpot:
-      "🇧🇦🇷 JACKPOT - 100x votre mise\n├ Probabilité: 0,1% (1 sur 1.000)\n└ Exemple: Mise 10 → Gain 1.000\n\n",
+      "🎰🎰🎰 JACKPOT MONDIAL - Gagnez toute la cagnotte !\n├ Probabilité : 0.0125% (1 sur 8,000)\n└ Exemple : Cagnotte à 50,000 → Gain 50,000\n\n",
     info_stats:
       "*Statistiques:*\n• Taux de victoire: ~13,7%\n• RTP (Retour au joueur): ~91,5%\n• Avantage de la maison: ~8,5%\n\n",
     info_disclaimer:
       "⚠️ *Note:* Les crédits n'ont pas de valeur monétaire.\nCeci est un jeu de divertissement.",
+
+    // Jackpot
+    jackpot_title: "🎰 *JACKPOT MONDIAL* 🎰",
+    jackpot_pool: "Cagnotte Actuelle : *{amount} Crédits*",
+    jackpot_info: "Tournez pour gagner ! 1% de chaque mise fait grossir la cagnotte.\nObtenez 🎰 | 🎰 | 🎰 pour tout gagner !",
 
     language_select:
       "🌍 *Sélectionner la Langue* 🌍\n\nChoisissez votre langue préférée:",
@@ -411,7 +829,9 @@ export const translations: Record<Language, Translation> = {
 ❓ | ❓ | ❓
 ───────────────────
 📉 Calcul de votre nouveau solde...
-💰 Voyons votre chance`,
+💰 Voyons votre chance
+
+ 🎰 Vérification du jackpot...`,
     spin_win: `🎉 *VOUS AVEZ GAGNÉ!* 🎉
 ───────────────────
 {board}
@@ -452,6 +872,83 @@ export const translations: Record<Language, Translation> = {
   ru: {
     start_welcome:
       "🎰 Добро пожаловать в игровой автомат Credits!\nВаш баланс: {balance} Credits\n\n*Выберите ставку:*",
+    
+    welcome_guide: `🎰 *ДОБРО ПОЖАЛОВАТЬ В CREDITS SLOT MACHINE!* 🎰
+
+━━━━━━━━━━━━━━━━━━━━━
+🎮 *КАК ИГРАТЬ*
+━━━━━━━━━━━━━━━━━━━━━
+Выберите ставку (10, 50 или 100 кредитов) и крутите! Совместите 3 символа для большого выигрыша!
+
+━━━━━━━━━━━━━━━━━━━━━
+💰 *КАК ВЫИГРАТЬ*
+━━━━━━━━━━━━━━━━━━━━━
+🍒🍒🍒 - 4x вашей ставки (12.5% шанс)
+🍋🍋🍋 - 20x вашей ставки (0.8% шанс)
+⭐⭐⭐ - 40x вашей ставки (0.34% шанс)
+7️⃣7️⃣7️⃣ - 150x вашей ставки (0.1% шанс)
+🎰🎰🎰 - *ГЛОБАЛЬНЫЙ ДЖЕКПОТ!* (0.0125%)
+
+━━━━━━━━━━━━━━━━━━━━━
+🏆 *ГЛОБАЛЬНЫЙ ДЖЕКПОТ*
+━━━━━━━━━━━━━━━━━━━━━
+• 1% от каждой ставки увеличивает джекпот
+• Получите 🎰🎰🎰 чтобы выиграть ВЕСЬ банк!
+• Проверить текущий банк: /jackpot
+
+━━━━━━━━━━━━━━━━━━━━━
+🏪 *МАГАЗИН УЛУЧШЕНИЙ*
+━━━━━━━━━━━━━━━━━━━━━
+• Покупайте улучшения для повышения шансов!
+• Увеличивайте вероятности выигрыша
+• Получайте множители и страховку
+• Открыть магазин: /shop
+
+━━━━━━━━━━━━━━━━━━━━━
+⚡ *СИСТЕМА XP И УРОВНЕЙ*
+━━━━━━━━━━━━━━━━━━━━━
+• Зарабатывайте XP с каждым вращением
+• Повышайте уровень для пассивных бонусов
+• Выше уровень = больше наград!
+• Посмотреть профиль: /profile
+
+━━━━━━━━━━━━━━━━━━━━━
+🎯 *ЕЖЕДНЕВНЫЕ ЦЕЛИ*
+━━━━━━━━━━━━━━━━━━━━━
+• Выполняйте ежедневные задания
+• Зарабатывайте бонусные XP и Кредиты
+• Новые цели каждый день!
+• Проверить цели: /goals
+
+━━━━━━━━━━━━━━━━━━━━━
+🔥 *ЕЖЕДНЕВНЫЙ БОНУС ВХОДА*
+━━━━━━━━━━━━━━━━━━━━━
+• Заходите ежедневно за бесплатные кредиты
+• Стройте серии для больших бонусов
+• Не прерывайте свою серию!
+• Проверить статус: /daily
+
+━━━━━━━━━━━━━━━━━━━━━
+🤝 *ДЕЛИТЕСЬ ДЛЯ КРЕДИТОВ*
+━━━━━━━━━━━━━━━━━━━━━
+• Приглашайте друзей по вашей ссылке
+• Вы и друг получаете награды!
+• Зарабатывайте кредиты + XP за реферала
+• Получить ссылку: /invite
+
+━━━━━━━━━━━━━━━━━━━━━
+💎 *КУПИТЬ БОЛЬШЕ КРЕДИТОВ*
+━━━━━━━━━━━━━━━━━━━━━
+• Покупайте за Telegram Stars
+• Получайте бонусные кредиты в больших пакетах
+• Безопасная оплата
+• Купить сейчас: /buy
+
+━━━━━━━━━━━━━━━━━━━━━
+
+🎲 *Готовы крутить?* Используйте кнопки ниже или введите /spin чтобы начать!
+
+💡 *Совет:* Начните с ежедневного бонуса входа и выполняйте цели для бесплатных кредитов!`,
     help_title: "📜 *Список Команд* 📜\n\n",
     help_start: "/start - Запустить бота и посмотреть баланс\n",
     help_balance: "/balance - Посмотреть текущий баланс\n",
@@ -480,13 +977,18 @@ export const translations: Record<Language, Translation> = {
     info_star:
       "⭐⭐⭐ - 40x вашей ставки\n├ Вероятность: 0,34% (1 из 296)\n└ Пример: Ставка 10 → Выигрыш 400\n\n",
     info_seven:
-      "7️⃣7️⃣7️⃣ - 150x вашей ставки\n├ Вероятность: 0,0125% (1 из 8.000)\n└ Пример: Ставка 10 → Выигрыш 1.500\n\n",
+      "7️⃣7️⃣7️⃣ - 150x вашу ставку\n├ Вероятность: 0.1% (1 из 1,000)\n└ Пример: Ставка 10 → Выигрыш 1,500\n\n",
     info_jackpot:
-      "🇧🇦🇷 ДЖЕКПОТ - 100x вашей ставки\n├ Вероятность: 0,1% (1 из 1.000)\n└ Пример: Ставка 10 → Выигрыш 1.000\n\n",
+      "🎰🎰🎰 ГЛОБАЛЬНЫЙ ДЖЕКПОТ - Выиграйте весь банк!\n├ Вероятность: 0.0125% (1 из 8,000)\n└ Пример: Банк 50,000 → Выигрыш 50,000\n\n",
     info_stats:
       "*Статистика:*\n• Процент побед: ~13,7%\n• RTP (Возврат игроку): ~91,5%\n• Преимущество казино: ~8,5%\n\n",
     info_disclaimer:
       "⚠️ *Примечание:* Кредиты не имеют денежной ценности.\nЭто развлекательная игра.",
+
+    // Jackpot
+    jackpot_title: "🎰 *ГЛОБАЛЬНЫЙ ДЖЕКПОТ* 🎰",
+    jackpot_pool: "Текущий банк: *{amount} кредитов*",
+    jackpot_info: "Крутите, чтобы выиграть! 1% от каждой ставки увеличивает банк.\nПолучите 🎰 | 🎰 | 🎰, чтобы забрать всё!",
 
     language_select: "🌍 *Выбрать Язык* 🌍\n\nВыберите предпочитаемый язык:",
     language_changed: "✅ Язык изменен на Русский!",
@@ -498,7 +1000,9 @@ export const translations: Record<Language, Translation> = {
 ❓ | ❓ | ❓
 ───────────────────
 📉 Рассчитываем ваш новый баланс...
-💰 Посмотрим на вашу удачу`,
+💰 Посмотрим на вашу удачу
+
+ 🎰 Проверка джекпота...`,
     spin_win: `🎉 *ВЫ ВЫИГРАЛИ!* 🎉
 ───────────────────
 {board}
