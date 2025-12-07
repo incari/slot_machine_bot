@@ -12,6 +12,9 @@ export interface User {
   xp?: number; // Current XP (default 0)
   dailyGoals?: DailyGoal[]; // Active daily goals
   isSpinning?: boolean; // Lock to prevent race conditions
+  referredBy?: number; // ID of the user who referred this user
+  referralCount?: number; // Total number of users referred
+  referralEarnings?: number; // Total credits earned from referrals
 }
 
 export interface DailyGoal {

@@ -8,6 +8,7 @@ import { ActiveUpgrade } from "./types";
 import { processDailyLogin, getDailyBonusEmoji } from "./dailyBonus";
 import { calculateLevel, getLevelProgress, getLevelTitle, getLevelBonus } from "./levels";
 import { checkGoals } from "./goals";
+import { processReferral, getReferralLink } from "./referrals";
 
 require("dotenv").config();
 
@@ -68,13 +69,29 @@ bot.start(async (ctx) => {
     reply_markup: {
       inline_keyboard: [
         [
-          { text: "💰 10 TON", callback_data: "spin_10" },
-          { text: "💰 50 TON", callback_data: "spin_50" },
-          { text: "💰 100 TON", callback_data: "spin_100" },
+          { text: "💰 10 Credits", callback_data: "spin_10" },
+          { text: "💰 50 Credits", callback_data: "spin_50" },
+          { text: "💰 100 Credits", callback_data: "spin_100" },
         ],
       ],
     },
   });
+
+  // Check for referral payload
+  // @ts-ignore - startPayload exists on Telegraf context but might be missing in types
+  const payload = ctx.startPayload || ctx.payload; 
+  if (payload && !isNaN(parseInt(payload))) {
+    const referrerId = parseInt(payload);
+    const result = processReferral(user.id, referrerId);
+    
+    if (result.success) {
+      // Notify new user
+      ctx.reply(`🎉 *Welcome Bonus!* 🎉\nYou were invited by a friend!\nReceived: *${result.rewardCredits} Credits* + *${result.rewardXp} XP*`, { parse_mode: "Markdown" });
+      
+      // Notify referrer
+      bot.telegram.sendMessage(referrerId, `🤝 *New Referral!* 🤝\nA friend just joined via your link!\nReceived: *${result.rewardCredits} Credits* + *${result.rewardXp} XP*`, { parse_mode: "Markdown" });
+    }
+  }
 });
 
 bot.help((ctx) => {
@@ -109,6 +126,7 @@ const commandTranslations = {
     { command: "profile", description: "User profile" },
     { command: "spin", description: "Spin slot machine" },
     { command: "help", description: "View help" },
+    { command: "invite", description: "Invite friends" },
   ],
   es: [
     { command: "start", description: "Iniciar bot" },
@@ -122,6 +140,7 @@ const commandTranslations = {
     { command: "profile", description: "Perfil de usuario" },
     { command: "spin", description: "Girar tragamonedas" },
     { command: "help", description: "Ver ayuda" },
+    { command: "invite", description: "Invitar amigos" },
   ],
   de: [
     { command: "start", description: "Bot starten" },
@@ -135,6 +154,7 @@ const commandTranslations = {
     { command: "profile", description: "Benutzerprofil" },
     { command: "spin", description: "Spielautomat drehen" },
     { command: "help", description: "Hilfe anzeigen" },
+    { command: "invite", description: "Freunde einladen" },
   ],
   it: [
     { command: "start", description: "Avvia bot" },
@@ -148,6 +168,7 @@ const commandTranslations = {
     { command: "profile", description: "Profilo utente" },
     { command: "spin", description: "Gira slot machine" },
     { command: "help", description: "Visualizza aiuto" },
+    { command: "invite", description: "Invita amici" },
   ],
   fr: [
     { command: "start", description: "Démarrer le bot" },
@@ -161,6 +182,7 @@ const commandTranslations = {
     { command: "profile", description: "Profil utilisateur" },
     { command: "spin", description: "Tourner la machine" },
     { command: "help", description: "Voir l'aide" },
+    { command: "invite", description: "Inviter des amis" },
   ],
   ru: [
     { command: "start", description: "Запустить бота" },
@@ -174,6 +196,7 @@ const commandTranslations = {
     { command: "profile", description: "Профиль пользователя" },
     { command: "spin", description: "Крутить автомат" },
     { command: "help", description: "Посмотреть помощь" },
+    { command: "invite", description: "Пригласить друзей" },
   ],
 };
 
@@ -353,7 +376,7 @@ bot.command("profile", (ctx) => {
   message += `   ${progressBar} ${progress.percentage}%\n\n`;
   
   message += `💎 *Stats:*\n`;
-  message += `💰 Balance: ${user.balance} TON\n`;
+  message += `💰 Balance: ${user.balance} Credits\n`;
   message += `🍀 Level Bonus: +${bonus}% rewards\n`;
   message += `🔥 Login Streak: ${user.consecutiveDays || 0} days\n`;
   message += `📅 Total Days: ${user.totalLoginDays || 0} days\n`;
@@ -369,7 +392,7 @@ bot.command("cheat", (ctx) => {
   const user = getUser(ctx.from!.id);
   user.balance += 10000;
   updateUser(user);
-  ctx.reply(`🕵️ *CHEAT ACTIVATED*\nAdded 10,000 TON to your balance.\nNew Balance: ${user.balance} TON`, { parse_mode: "Markdown" });
+  ctx.reply(`🕵️ *CHEAT ACTIVATED*\nAdded 10,000 Credits to your balance.\nNew Balance: ${user.balance} Credits`, { parse_mode: "Markdown" });
 });
 
 // Helper to find your ID
@@ -394,7 +417,7 @@ bot.command("shop", (ctx) => {
     .filter(Boolean);
 
   let shopMessage = "🏪 *UPGRADE SHOP* 🏪\n\n";
-  shopMessage += `💰 Your Balance: ${user.balance} TON\n\n`;
+  shopMessage += `💰 Your Balance: ${user.balance} Credits\n\n`;
 
   if (user.activeUpgrades && user.activeUpgrades.length > 0) {
     shopMessage += "✨ *Active Upgrades:*\n";
@@ -413,11 +436,11 @@ bot.command("shop", (ctx) => {
     const emoji = index === 0 ? "1️⃣" : index === 1 ? "2️⃣" : "3️⃣";
     shopMessage += `${emoji} *${upgrade.name}*\n`;
     shopMessage += `   ${upgrade.description}\n`;
-    shopMessage += `   💵 Cost: ${upgrade.cost} TON\n\n`;
+    shopMessage += `   💵 Cost: ${upgrade.cost} Credits\n\n`;
 
     return [
       {
-        text: `${emoji} Buy ${upgrade.cost} TON`,
+        text: `${emoji} Buy ${upgrade.cost} Credits`,
         callback_data: `buy_upgrade_${upgrade.id}`,
       },
     ];
@@ -425,7 +448,7 @@ bot.command("shop", (ctx) => {
 
   // Add refresh button
   buttons.push([
-    { text: "🔄 Refresh (1000 TON)", callback_data: "refresh_shop" },
+    { text: "🔄 Refresh (1000 Credits)", callback_data: "refresh_shop" },
   ]);
 
   ctx.reply(shopMessage, {
@@ -442,7 +465,7 @@ bot.action("refresh_shop", async (ctx) => {
   const REFRESH_COST = 1000;
 
   if (user.balance < REFRESH_COST) {
-    ctx.answerCbQuery(`❌ Not enough balance! Need ${REFRESH_COST} TON`);
+    ctx.answerCbQuery(`❌ Not enough balance! Need ${REFRESH_COST} Credits`);
     return;
   }
 
@@ -459,7 +482,7 @@ bot.action("refresh_shop", async (ctx) => {
     .filter(Boolean);
 
   let shopMessage = "🏪 *UPGRADE SHOP* 🏪\n\n";
-  shopMessage += `💰 Your Balance: ${user.balance} TON\n\n`;
+  shopMessage += `💰 Your Balance: ${user.balance} Credits\n\n`;
 
   if (user.activeUpgrades && user.activeUpgrades.length > 0) {
     shopMessage += "✨ *Active Upgrades:*\n";
@@ -478,18 +501,18 @@ bot.action("refresh_shop", async (ctx) => {
     const emoji = index === 0 ? "1️⃣" : index === 1 ? "2️⃣" : "3️⃣";
     shopMessage += `${emoji} *${upgrade.name}*\n`;
     shopMessage += `   ${upgrade.description}\n`;
-    shopMessage += `   💵 Cost: ${upgrade.cost} TON\n\n`;
+    shopMessage += `   💵 Cost: ${upgrade.cost} Credits\n\n`;
 
     return [
       {
-        text: `${emoji} Buy ${upgrade.cost} TON`,
+        text: `${emoji} Buy ${upgrade.cost} Credits`,
         callback_data: `buy_upgrade_${upgrade.id}`,
       },
     ];
   });
 
   buttons.push([
-    { text: "🔄 Refresh (1000 TON)", callback_data: "refresh_shop" },
+    { text: "🔄 Refresh (1000 Credits)", callback_data: "refresh_shop" },
   ]);
 
   await ctx.editMessageText(shopMessage, {
@@ -515,7 +538,7 @@ bot.action(/^buy_upgrade_(\d+)$/, async (ctx) => {
   }
 
   if (user.balance < upgrade.cost) {
-    ctx.answerCbQuery(`❌ Not enough balance! Need ${upgrade.cost} TON`);
+    ctx.answerCbQuery(`❌ Not enough balance! Need ${upgrade.cost} Credits`);
     return;
   }
 
@@ -542,7 +565,7 @@ bot.action(/^buy_upgrade_(\d+)$/, async (ctx) => {
   let confirmMessage = `✅ *Purchase Successful!*\n\n`;
   confirmMessage += `🎁 *${upgrade.name}*\n`;
   confirmMessage += `${upgrade.description}\n\n`;
-  confirmMessage += `💰 New Balance: ${user.balance} TON\n\n`;
+  confirmMessage += `💰 New Balance: ${user.balance} Credits\n\n`;
 
   if (user.activeUpgrades && user.activeUpgrades.length > 0) {
     confirmMessage += "✨ *Active Upgrades:*\n";
@@ -618,7 +641,7 @@ const executeSpin = async (ctx: any, bet: number) => {
   // Add second row to match final layout - show current bet as the repeat button
   // After this spin completes, this bet will become the lastBet
   animationButtons.push([
-    { text: `🔁 ${bet} TON`, callback_data: `spin_${bet}` },
+    { text: `🔁 ${bet} Credits`, callback_data: `spin_${bet}` },
   ]);
 
   const msg = await ctx.reply(spinningText, {
@@ -753,7 +776,7 @@ const executeSpin = async (ctx: any, bet: number) => {
 
   // Add insurance message if applicable
   if (insuranceRefund > 0) {
-    message += `\n\n🛡️ Insurance refund: +${insuranceRefund} TON`;
+    message += `\n\n🛡️ Insurance refund: +${insuranceRefund} Credits`;
   }
 
   // Add gamification messages
@@ -773,11 +796,11 @@ const executeSpin = async (ctx: any, bet: number) => {
   // Always add second row with repeat button (or placeholder) to prevent flickering
   if (user.lastBet && user.balance >= user.lastBet) {
     buttons.push([
-      { text: `🔁 ${user.lastBet} TON`, callback_data: `spin_${user.lastBet}` },
+      { text: `🔁 ${user.lastBet} Credits`, callback_data: `spin_${user.lastBet}` },
     ]);
   } else if (user.lastBet && user.balance > 0) {
     // Allow user to play with their remaining balance when they can't afford last bet
-    buttons.push([{ text: `🔁 ${user.balance} TON`, callback_data: `spin_${user.balance}` }]);
+    buttons.push([{ text: `🔁 ${user.balance} Credits`, callback_data: `spin_${user.balance}` }]);
   } else {
     // Show buy button when user has no balance
     buttons.push([{ text: "💰 Buy Credits", callback_data: "show_buy_menu" }]);
@@ -820,12 +843,37 @@ bot.command("play", (ctx) => {
     reply_markup: {
       inline_keyboard: [
         [
-          { text: "💰 10 TON", callback_data: "spin_10" },
-          { text: "💰 50 TON", callback_data: "spin_50" },
-          { text: "💰 100 TON", callback_data: "spin_100" },
+          { text: "💰 10 Credits", callback_data: "spin_10" },
+          { text: "💰 50 Credits", callback_data: "spin_50" },
+          { text: "💰 100 Credits", callback_data: "spin_100" },
         ],
       ],
     },
+  });
+});
+
+// Invite command
+bot.command("invite", (ctx) => {
+  const user = getUser(ctx.from!.id);
+  const botUsername = ctx.botInfo.username;
+  const link = getReferralLink(botUsername, user.id);
+  
+  let message = "🤝 *INVITE FRIENDS* 🤝\n\n";
+  message += "Invite your friends and earn rewards!\n\n";
+  message += `💰 *Reward per friend:* 1000 Credits + 50 XP\n`;
+  message += `🎁 *Friend gets:* 1000 Credits + 50 XP\n\n`;
+  message += `📊 *Your Stats:*\n`;
+  message += `Friends Invited: *${user.referralCount || 0}*\n`;
+  message += `Total Earnings: *${user.referralEarnings || 0} Credits*\n\n`;
+  message += `🔗 *Your Referral Link:*\n\`${link}\``;
+
+  ctx.reply(message, { 
+    parse_mode: "Markdown",
+    reply_markup: {
+      inline_keyboard: [
+        [{ text: "📤 Share Link", url: `https://t.me/share/url?url=${link}&text=Join me on Slot Bot and get 1000 free credits!` }]
+      ]
+    }
   });
 });
 
