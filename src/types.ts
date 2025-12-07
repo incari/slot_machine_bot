@@ -15,6 +15,10 @@ export interface User {
   referredBy?: number; // ID of the user who referred this user
   referralCount?: number; // Total number of users referred
   referralEarnings?: number; // Total credits earned from referrals
+  totalSpins?: number; // Total number of spins
+  totalWins?: number; // Total number of wins
+  totalWinnings?: number; // Total credits won
+
 }
 
 export interface DailyGoal {

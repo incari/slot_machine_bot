@@ -9,6 +9,7 @@ import { processDailyLogin, getDailyBonusEmoji } from "./dailyBonus";
 import { calculateLevel, getLevelProgress, getLevelTitle, getLevelBonus } from "./levels";
 import { checkGoals } from "./goals";
 import { processReferral, getReferralLink } from "./referrals";
+import { getJackpot, addToJackpot, resetJackpot } from "./jackpot";
 
 require("dotenv").config();
 
@@ -127,6 +128,7 @@ const commandTranslations = {
     { command: "spin", description: "Spin slot machine" },
     { command: "help", description: "View help" },
     { command: "invite", description: "Invite friends" },
+    { command: "jackpot", description: "View Global Jackpot" },
   ],
   es: [
     { command: "start", description: "Iniciar bot" },
@@ -693,8 +695,8 @@ const executeSpin = async (ctx: any, bet: number) => {
   }
 
   user.balance -= bet;
-  user.balance += reward;
-  user.balance += insuranceRefund; // Add insurance refund
+  // user.balance += reward; // Removed: reward added later
+  // user.balance += insuranceRefund; // Removed: insurance added later
   user.lastBet = bet; // Save last bet for repeat button
 
   // Consume upgrades (decrease spins remaining)
@@ -707,16 +709,37 @@ const executeSpin = async (ctx: any, bet: number) => {
       .filter((au) => au.spinsRemaining && au.spinsRemaining > 0); // Remove expired upgrades
   }
 
-  // Save changes!
-  updateUser(user);
+  // 1. Deduct balance
+  user.balance -= bet;
+  
+  // 2. Contribute to Jackpot (1%)
+  const jackpotContribution = Math.max(1, Math.floor(bet * 0.01));
+  addToJackpot(jackpotContribution);
 
+  // 3. Spin (Already spun above, reusing result)
+  // const result = spinSlots(user.activeUpgrades || []); // Removed duplicate
+  // const reward = calculateReward(bet, result, user.activeUpgrades || [], user.level); // Removed duplicate
+  
+  // 4. Check for Jackpot Win (7 | 7 | 7)
+  let jackpotWin = 0;
+  if (result[0].emoji === "7️⃣" && result[1].emoji === "7️⃣" && result[2].emoji === "7️⃣") {
+    jackpotWin = getJackpot();
+    resetJackpot();
+    // Announce Jackpot
+    bot.telegram.sendMessage(ctx.chat!.id, `🚨 *JACKPOT WINNER!* 🚨\n\n@${ctx.from!.username || ctx.from!.first_name} just won the Global Jackpot of *${jackpotWin} Credits*!`, { parse_mode: "Markdown" });
+  }
+
+  const totalReward = reward + jackpotWin + insuranceRefund;
+  user.balance += totalReward;
+  
   // --- GAMIFICATION START ---
   let gamificationMessages = "";
 
-  // Add XP (1 per spin)
+  // Add XP (1 per spin + bonus for winning)
   const currentLevel = user.level || 1;
   const currentXp = user.xp || 0;
-  user.xp = currentXp + 1;
+  const xpGained = Math.floor(bet / 10) + (totalReward > 0 ? 10 : 0);
+  user.xp = currentXp + xpGained;
   
   // Check for level up
   const newLevel = calculateLevel(user.xp);
@@ -740,8 +763,8 @@ const executeSpin = async (ctx: any, bet: number) => {
     { type: "bet", amount: bet }
   ];
 
-  if (reward > 0) {
-    goalsToCheck.push({ type: "win", amount: reward / bet }); // Send multiplier for win_big check
+  if (totalReward > 0) {
+    goalsToCheck.push({ type: "win", amount: totalReward / bet }); // Send multiplier for win_big check
   } else {
     goalsToCheck.push({ type: "loss" });
   }
@@ -765,16 +788,50 @@ const executeSpin = async (ctx: any, bet: number) => {
     updateUser(user);
   }
   // --- GAMIFICATION END ---
-  // --- GAMIFICATION END ---
 
-  const board = `${result[0].emoji} | ${result[1].emoji} | ${result[2].emoji}`;
+  // Update stats
+  user.totalSpins = (user.totalSpins || 0) + 1;
+  user.lastBet = bet;
+  if (totalReward > 0) {
+    user.totalWins = (user.totalWins || 0) + 1;
+    user.totalWinnings = (user.totalWinnings || 0) + totalReward;
+  }
 
-  let message =
-    reward > 0
-      ? t(lang, "spin_win", { board, reward, balance: user.balance })
-      : t(lang, "spin_lose", { board, bet, balance: user.balance });
+  updateUser(user);
+  
+  // Wait for animation
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+  
+  // Delete animation message
+  try {
+    await ctx.telegram.deleteMessage(ctx.chat!.id, msg.message_id);
+  } catch (e) {
+    // Ignore if message already deleted
+  }
 
-  // Add insurance message if applicable
+  // Show result
+  const board = `| ${result[0].emoji} | ${result[1].emoji} | ${result[2].emoji} |`;
+  const currentJackpot = getJackpot();
+  
+  let message = "";
+  if (totalReward > 0) {
+    message = t(lang, "spin_win", {
+      board,
+      reward: totalReward,
+      balance: user.balance,
+    });
+    if (jackpotWin > 0) {
+      message += `\n\n🚨 *JACKPOT WIN: ${jackpotWin} Credits* 🚨`;
+    }
+  } else {
+    message = t(lang, "spin_lose", {
+      board,
+      bet,
+      balance: user.balance,
+    });
+  }
+  
+  message += `\n\n🎰 Global Jackpot: *${currentJackpot} Credits*`; // Add insurance message if applicable
   if (insuranceRefund > 0) {
     message += `\n\n🛡️ Insurance refund: +${insuranceRefund} Credits`;
   }
@@ -875,6 +932,12 @@ bot.command("invite", (ctx) => {
       ]
     }
   });
+});
+
+// Jackpot Command
+bot.command("jackpot", (ctx) => {
+  const amount = getJackpot();
+  ctx.reply(`🎰 *GLOBAL JACKPOT* 🎰\n\nCurrent Pool: *${amount} Credits*\n\nSpin to win! 1% of every bet grows the pot.\nHit 7️⃣ | 7️⃣ | 7️⃣ to win it all!`, { parse_mode: "Markdown" });
 });
 
 bot.action(/^spin_(\d+)$/, (ctx) => {
