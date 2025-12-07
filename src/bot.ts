@@ -653,24 +653,27 @@ const executeSpin = async (ctx: any, bet: number) => {
     },
   });
 
-  await delay(100);
-  const tempResult = spinSlots(user.activeUpgrades || []);
-  const tempBoard = `${tempResult[0].emoji} | ${tempResult[1].emoji} | ${tempResult[2].emoji}`;
-  try {
-    await ctx.telegram.editMessageText(
-      msg.chat.id,
-      msg.message_id,
-      undefined,
-      t(lang, "spin_spinning").replace("❓ | ❓ | ❓", tempBoard),
-      {
-        parse_mode: "Markdown",
-        reply_markup: {
-          inline_keyboard: animationButtons,
-        },
-      }
-    );
-  } catch (e) {
-    // Ignore errors if message is not modified
+  // Animation loop - show 3 intermediate spins
+  for (let i = 0; i < 3; i++) {
+    await delay(200);
+    const tempResult = spinSlots(user.activeUpgrades || []);
+    const tempBoard = `${tempResult[0].emoji} | ${tempResult[1].emoji} | ${tempResult[2].emoji}`;
+    try {
+      await ctx.telegram.editMessageText(
+        msg.chat.id,
+        msg.message_id,
+        undefined,
+        t(lang, "spin_spinning").replace("❓ | ❓ | ❓", tempBoard),
+        {
+          parse_mode: "Markdown",
+          reply_markup: {
+            inline_keyboard: animationButtons,
+          },
+        }
+      );
+    } catch (e) {
+      // Ignore errors if message is not modified
+    }
   }
 
   await delay(300);
@@ -802,12 +805,7 @@ const executeSpin = async (ctx: any, bet: number) => {
   // Wait for animation
   await new Promise((resolve) => setTimeout(resolve, 2000));
   
-  // Delete animation message
-  try {
-    await ctx.telegram.deleteMessage(ctx.chat!.id, msg.message_id);
-  } catch (e) {
-    // Ignore if message already deleted
-  }
+
 
   // Show result
   const board = `| ${result[0].emoji} | ${result[1].emoji} | ${result[2].emoji} |`;

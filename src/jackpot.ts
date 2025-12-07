@@ -15,9 +15,17 @@ try {
   if (fs.existsSync(DATA_FILE)) {
     const data = fs.readFileSync(DATA_FILE, "utf-8");
     jackpot = JSON.parse(data);
+    if (typeof jackpot.amount !== 'number' || isNaN(jackpot.amount)) {
+      console.error("Invalid jackpot amount, resetting to seed.");
+      jackpot.amount = SEED_AMOUNT;
+    }
+  } else {
+    console.log("Jackpot file not found, creating new one.");
+    saveJackpot();
   }
 } catch (error) {
   console.error("Error loading jackpot:", error);
+  jackpot = { amount: SEED_AMOUNT }; // Fallback
 }
 
 function saveJackpot() {

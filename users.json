@@ -10,7 +10,7 @@
   },
   "7068184183": {
     "id": 7068184183,
-    "balance": 118705,
+    "balance": 118105,
     "language": "en",
     "consecutiveDays": 2,
     "totalLoginDays": 2,
@@ -21,7 +21,7 @@
       90,
       22
     ],
-    "xp": 325,
+    "xp": 415,
     "dailyGoals": [
       {
         "id": "u7fr6j",
@@ -56,6 +56,9 @@
     ],
     "level": 3,
     "activeUpgrades": [],
-    "isSpinning": false
+    "isSpinning": true,
+    "totalSpins": 7,
+    "totalWins": 2,
+    "totalWinnings": 800
   }
 }

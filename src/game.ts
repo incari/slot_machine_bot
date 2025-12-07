@@ -108,7 +108,6 @@ export function calculateReward(bet: number, result: SymbolSlot[], activeUpgrade
     if (effect.cherryMultiplier) symbolMultipliers["🍒"] = (symbolMultipliers["🍒"] || 1) * effect.cherryMultiplier;
     if (effect.lemonMultiplier) symbolMultipliers["🍋"] = (symbolMultipliers["🍋"] || 1) * effect.lemonMultiplier;
     if (effect.starMultiplier) symbolMultipliers["⭐"] = (symbolMultipliers["⭐"] || 1) * effect.starMultiplier;
-    if (effect.starMultiplier) symbolMultipliers["⭐"] = (symbolMultipliers["⭐"] || 1) * effect.starMultiplier;
     if (effect.sevenMultiplier) symbolMultipliers["🎰"] = (symbolMultipliers["🎰"] || 1) * effect.sevenMultiplier; // "Seven" upgrade now applies to "Slot" symbol
     if (effect.barMultiplier) symbolMultipliers["BAR"] = (symbolMultipliers["BAR"] || 1) * effect.barMultiplier;
   });
