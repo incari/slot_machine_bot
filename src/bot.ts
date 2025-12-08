@@ -1,12 +1,17 @@
 import { Telegraf } from "telegraf";
 import { getUser, updateUser, getAllUsers } from "./users";
 import { spinSlots, calculateReward } from "./game";
-import { t, Language } from "./translations";
+import { t, Language, menuCommands } from "./translations";
 import { setUserLanguage } from "./users";
 import { getRandomUpgrades, getUpgradeById } from "./upgrades";
 import { ActiveUpgrade } from "./types";
 import { processDailyLogin, getDailyBonusEmoji } from "./dailyBonus";
-import { calculateLevel, getLevelProgress, getLevelTitle, getLevelBonus } from "./levels";
+import {
+  calculateLevel,
+  getLevelProgress,
+  getLevelTitle,
+  getLevelBonus,
+} from "./levels";
 import { checkGoals } from "./goals";
 import { processReferral, getReferralLink } from "./referrals";
 import { getJackpot, addToJackpot, resetJackpot } from "./jackpot";
@@ -85,17 +90,24 @@ bot.start(async (ctx) => {
 
   // Check for referral payload
   // @ts-ignore - startPayload exists on Telegraf context but might be missing in types
-  const payload = ctx.startPayload || ctx.payload; 
+  const payload = ctx.startPayload || ctx.payload;
   if (payload && !isNaN(parseInt(payload))) {
     const referrerId = parseInt(payload);
     const result = processReferral(user.id, referrerId);
-    
+
     if (result.success) {
       // Notify new user
-      ctx.reply(`🎉 *Welcome Bonus!* 🎉\nYou were invited by a friend!\nReceived: *${result.rewardCredits} Credits* + *${result.rewardXp} XP*`, { parse_mode: "Markdown" });
-      
+      ctx.reply(
+        `🎉 *Welcome Bonus!* 🎉\nYou were invited by a friend!\nReceived: *${result.rewardCredits} Credits* + *${result.rewardXp} XP*`,
+        { parse_mode: "Markdown" }
+      );
+
       // Notify referrer
-      bot.telegram.sendMessage(referrerId, `🤝 *New Referral!* 🤝\nA friend just joined via your link!\nReceived: *${result.rewardCredits} Credits* + *${result.rewardXp} XP*`, { parse_mode: "Markdown" });
+      bot.telegram.sendMessage(
+        referrerId,
+        `🤝 *New Referral!* 🤝\nA friend just joined via your link!\nReceived: *${result.rewardCredits} Credits* + *${result.rewardXp} XP*`,
+        { parse_mode: "Markdown" }
+      );
     }
   }
 });
@@ -320,12 +332,17 @@ bot.command("goals", (ctx) => {
   }
 
   let message = "🎯 *DAILY GOALS* 🎯\n\n";
-  
-  user.dailyGoals!.forEach(goal => {
+
+  user.dailyGoals!.forEach((goal) => {
     const status = goal.completed ? "✅" : "⬜";
-    const progress = Math.min(100, Math.floor((goal.current / goal.target) * 100));
-    const progressBar = "▓".repeat(Math.floor(progress / 10)) + "░".repeat(10 - Math.floor(progress / 10));
-    
+    const progress = Math.min(
+      100,
+      Math.floor((goal.current / goal.target) * 100)
+    );
+    const progressBar =
+      "▓".repeat(Math.floor(progress / 10)) +
+      "░".repeat(10 - Math.floor(progress / 10));
+
     message += `${status} *${goal.description}*\n`;
     if (goal.completed) {
       message += `   🎉 Completed! (+${goal.rewardXp} XP, +${goal.rewardCredits} Credits)\n\n`;
@@ -342,21 +359,23 @@ bot.command("goals", (ctx) => {
 bot.command("profile", (ctx) => {
   const user = getUser(ctx.from!.id);
   const lang = user.language as Language;
-  
+
   const level = user.level || 1;
   const xp = user.activeUpgrades ? (user as any).xp || 0 : 0; // Fix type issue temporarily
   const title = getLevelTitle(level);
   const progress = getLevelProgress(user.xp || 0, level);
   const bonus = Math.round((getLevelBonus(level) - 1) * 100);
-  
-  const progressBar = "▓".repeat(Math.floor(progress.percentage / 10)) + "░".repeat(10 - Math.floor(progress.percentage / 10));
+
+  const progressBar =
+    "▓".repeat(Math.floor(progress.percentage / 10)) +
+    "░".repeat(10 - Math.floor(progress.percentage / 10));
 
   let message = `👤 *USER PROFILE* 👤\n\n`;
   message += `📜 Title: *${title}*\n`;
   message += `🆙 Level: *${level}*\n`;
   message += `✨ XP: ${progress.current} / ${progress.total}\n`;
   message += `   ${progressBar} ${progress.percentage}%\n\n`;
-  
+
   message += `💎 *Stats:*\n`;
   message += `💰 Balance: ${user.balance} Credits\n`;
   message += `🍀 Level Bonus: +${bonus}% rewards\n`;
@@ -371,14 +390,18 @@ bot.command("game", (ctx) => {
   const user = getUser(ctx.from!.id);
   const lang = user.language as Language;
   const currentJackpot = getJackpot();
-  
+
   let message = `🎮 *GAME INFO & STATS* 🎮\n\n`;
   message += `🎰 *Global Jackpot:* ${currentJackpot} Credits\n\n`;
   message += `📊 *Your Stats:*\n`;
   message += `🎲 Total Spins: ${user.totalSpins || 0}\n`;
   message += `🏆 Total Wins: ${user.totalWins || 0}\n`;
   message += `💰 Total Winnings: ${user.totalWinnings || 0} Credits\n`;
-  message += `📈 Win Rate: ${user.totalSpins ? Math.round((user.totalWins || 0) / user.totalSpins * 100) : 0}%\n\n`;
+  message += `📈 Win Rate: ${
+    user.totalSpins
+      ? Math.round(((user.totalWins || 0) / user.totalSpins) * 100)
+      : 0
+  }%\n\n`;
   message += `*Quick Actions:*`;
 
   ctx.reply(message, {
@@ -398,12 +421,12 @@ bot.command("game", (ctx) => {
 bot.command("account", (ctx) => {
   const user = getUser(ctx.from!.id);
   const lang = user.language as Language;
-  
+
   const level = user.level || 1;
   const title = getLevelTitle(level);
   const progress = getLevelProgress(user.xp || 0, level);
   const bonus = Math.round((getLevelBonus(level) - 1) * 100);
-  
+
   let message = `👤 *ACCOUNT & REWARDS* 👤\n\n`;
   message += `💰 Balance: *${user.balance} Credits*\n`;
   message += `🆙 Level: *${level}* (${title})\n`;
@@ -434,7 +457,7 @@ bot.command("account", (ctx) => {
 bot.command("settings", (ctx) => {
   const user = getUser(ctx.from!.id);
   const lang = user.language as Language;
-  
+
   let message = `⚙️ *SETTINGS & HELP* ⚙️\n\n`;
   message += `🌍 Current Language: *${lang.toUpperCase()}*\n`;
   message += `💰 Balance: ${user.balance} Credits\n\n`;
@@ -448,14 +471,11 @@ bot.command("settings", (ctx) => {
           { text: "🌍 Change Language", callback_data: "show_language" },
           { text: "❓ Help", callback_data: "show_help" },
         ],
-        [
-          { text: "📊 View Balance", callback_data: "show_balance" },
-        ],
+        [{ text: "📊 View Balance", callback_data: "show_balance" }],
       ],
     },
   });
 });
-
 
 // Cheat command for testing (Admin only)
 bot.command("cheat", (ctx) => {
@@ -465,7 +485,10 @@ bot.command("cheat", (ctx) => {
   const user = getUser(ctx.from!.id);
   user.balance += 10000;
   updateUser(user);
-  ctx.reply(`🕵️ *CHEAT ACTIVATED*\nAdded 10,000 Credits to your balance.\nNew Balance: ${user.balance} Credits`, { parse_mode: "Markdown" });
+  ctx.reply(
+    `🕵️ *CHEAT ACTIVATED*\nAdded 10,000 Credits to your balance.\nNew Balance: ${user.balance} Credits`,
+    { parse_mode: "Markdown" }
+  );
 });
 
 // Helper to find your ID
@@ -482,23 +505,23 @@ bot.command("broadcast", async (ctx) => {
 
   // Get the message to broadcast (everything after /broadcast)
   const message = ctx.message.text.replace("/broadcast", "").trim();
-  
+
   if (!message) {
     return ctx.reply(
       `📢 *BROADCAST COMMAND* 📢\n\n` +
-      `Usage: \`/broadcast Your message here\`\n\n` +
-      `This will send your message to all bot users.\n` +
-      `Use Markdown formatting if needed.`,
+        `Usage: \`/broadcast Your message here\`\n\n` +
+        `This will send your message to all bot users.\n` +
+        `Use Markdown formatting if needed.`,
       { parse_mode: "Markdown" }
     );
   }
 
   const users = getAllUsers();
   const totalUsers = users.length;
-  
+
   await ctx.reply(
     `📢 Starting broadcast to ${totalUsers} users...\n` +
-    `This may take a while. I'll notify you when it's done.`
+      `This may take a while. I'll notify you when it's done.`
   );
 
   let successCount = 0;
@@ -508,14 +531,16 @@ bot.command("broadcast", async (ctx) => {
   // Send to all users with rate limiting
   for (let i = 0; i < users.length; i++) {
     const user = users[i];
-    
+
     try {
-      await ctx.telegram.sendMessage(user.id, message, { parse_mode: "Markdown" });
+      await ctx.telegram.sendMessage(user.id, message, {
+        parse_mode: "Markdown",
+      });
       successCount++;
-      
+
       // Rate limiting: wait 50ms between messages to avoid hitting Telegram limits
-      await new Promise(resolve => setTimeout(resolve, 50));
-      
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
       // Progress update every 50 users
       if ((i + 1) % 50 === 0) {
         await ctx.reply(`Progress: ${i + 1}/${totalUsers} users...`);
@@ -533,7 +558,7 @@ bot.command("broadcast", async (ctx) => {
   report += `✅ Successful: ${successCount}\n`;
   report += `❌ Failed: ${failCount}\n`;
   report += `👥 Total: ${totalUsers}\n`;
-  
+
   if (failedUsers.length > 0 && failedUsers.length <= 10) {
     report += `\n⚠️ Failed user IDs: ${failedUsers.join(", ")}`;
   } else if (failedUsers.length > 10) {
@@ -542,7 +567,6 @@ bot.command("broadcast", async (ctx) => {
 
   await ctx.reply(report, { parse_mode: "Markdown" });
 });
-
 
 // Shop command - show 3 random upgrades
 bot.command("shop", (ctx) => {
@@ -748,7 +772,7 @@ const executeSpin = async (ctx: any, bet: number) => {
   if (user.isSpinning) {
     const lockTime = user.spinLockTime || 0;
     const now = Date.now();
-    
+
     if (now - lockTime > 10000) {
       // Lock is stuck, release it
       user.isSpinning = false;
@@ -762,9 +786,22 @@ const executeSpin = async (ctx: any, bet: number) => {
     }
   }
 
+  // CRITICAL: Set spin lock BEFORE balance check to prevent race conditions
+  // This prevents two simultaneous requests from both passing the balance check
+  user.isSpinning = true;
+  user.spinLockTime = Date.now();
+  updateUser(user);
+
+  // Now check balance (with lock held)
   if (user.balance < bet) {
+    // Release the lock since we're rejecting the spin
+    user.isSpinning = false;
+    updateUser(user);
     return ctx.reply(
-      t(lang, "spin_insufficient", { balance: user.balance, bet }) + "\n\n" + t(lang, "buy_title") + t(lang, "buy_packages"),
+      t(lang, "spin_insufficient", { balance: user.balance, bet }) +
+        "\n\n" +
+        t(lang, "buy_title") +
+        t(lang, "buy_packages"),
       {
         parse_mode: "Markdown",
         reply_markup: {
@@ -779,258 +816,276 @@ const executeSpin = async (ctx: any, bet: number) => {
     );
   }
 
-  // Set spin lock
-  user.isSpinning = true;
-  user.spinLockTime = Date.now();
+  // CRITICAL: Deduct balance immediately after acquiring lock
+  // This ensures no race condition between balance check and deduction
+  user.balance -= bet;
   updateUser(user);
 
   try {
     // Animation with consistent message length to prevent flickering
     const spinningText = t(lang, "spin_spinning");
 
-  // Build consistent button layout for animation (same as final result)
-  const animationButtons = [
-    [
+    // Build consistent button layout for animation (same as final result)
+    const animationButtons = [
+      [
+        { text: t(lang, "button_spin_10"), callback_data: "spin_10" },
+        { text: t(lang, "button_spin_50"), callback_data: "spin_50" },
+        { text: t(lang, "button_spin_100"), callback_data: "spin_100" },
+      ],
+    ];
+
+    // Add second row to match final layout - show current bet as the repeat button
+    // After this spin completes, this bet will become the lastBet
+    animationButtons.push([
+      { text: `🔁 ${bet} Credits`, callback_data: `spin_${bet}` },
+    ]);
+
+    const msg = await ctx.reply(spinningText, {
+      parse_mode: "Markdown",
+      reply_markup: {
+        inline_keyboard: animationButtons,
+      },
+    });
+
+    // Animation loop - show 3 intermediate spins
+    for (let i = 0; i < 3; i++) {
+      await delay(150);
+      const tempResult = spinSlots(user.activeUpgrades || []);
+      const tempBoard = `${tempResult[0].emoji} | ${tempResult[1].emoji} | ${tempResult[2].emoji}`;
+      try {
+        await ctx.telegram.editMessageText(
+          msg.chat.id,
+          msg.message_id,
+          undefined,
+          t(lang, "spin_spinning").replace("❓ | ❓ | ❓", tempBoard),
+          {
+            parse_mode: "Markdown",
+            reply_markup: {
+              inline_keyboard: animationButtons,
+            },
+          }
+        );
+      } catch (e) {
+        // Ignore errors if message is not modified
+      }
+    }
+
+    await delay(200);
+
+    const result = spinSlots(user.activeUpgrades || []);
+    const reward = calculateReward(
+      bet,
+      result,
+      user.activeUpgrades || [],
+      user.level || 1
+    );
+
+    // Calculate insurance refund if applicable
+    let insuranceRefund = 0;
+    if (reward === 0 && user.activeUpgrades) {
+      user.activeUpgrades.forEach((au) => {
+        if (au.spinsRemaining && au.spinsRemaining > 0) {
+          const upgrade = getUpgradeById(au.upgradeId);
+          if (upgrade?.effect.insurance) {
+            insuranceRefund = Math.max(
+              insuranceRefund,
+              bet * (upgrade.effect.insurance / 100)
+            );
+          }
+        }
+      });
+    }
+
+    // Consume upgrades (decrease spins remaining)
+    if (user.activeUpgrades) {
+      user.activeUpgrades = user.activeUpgrades
+        .map((au) => ({
+          ...au,
+          spinsRemaining: au.spinsRemaining ? au.spinsRemaining - 1 : 0,
+        }))
+        .filter((au) => au.spinsRemaining && au.spinsRemaining > 0); // Remove expired upgrades
+    }
+
+    // NOTE: Balance was already deducted at the start of executeSpin (line 821)
+    // to prevent race conditions. Do NOT deduct again here.
+
+    // Contribute to Jackpot (1%)
+    const jackpotContribution = Math.max(1, Math.floor(bet * 0.01));
+    addToJackpot(jackpotContribution);
+
+    // 3. Spin (Already spun above, reusing result)
+    // const result = spinSlots(user.activeUpgrades || []); // Removed duplicate
+    // const reward = calculateReward(bet, result, user.activeUpgrades || [], user.level); // Removed duplicate
+
+    // 4. Check for Jackpot Win (🎰 | 🎰 | 🎰)
+    let jackpotWin = 0;
+    if (
+      result[0].emoji === "🎰" &&
+      result[1].emoji === "🎰" &&
+      result[2].emoji === "🎰"
+    ) {
+      jackpotWin = getJackpot();
+      resetJackpot();
+      // Announce Jackpot
+      bot.telegram.sendMessage(
+        ctx.chat!.id,
+        `🚨 *JACKPOT WINNER!* 🚨\n\n@${
+          ctx.from!.username || ctx.from!.first_name
+        } just won the Global Jackpot of *${jackpotWin} Credits*!`,
+        { parse_mode: "Markdown" }
+      );
+    }
+
+    const totalReward = reward + jackpotWin + insuranceRefund;
+    user.balance += totalReward;
+
+    // --- GAMIFICATION START ---
+    let gamificationMessages = "";
+
+    // Add XP (1 per spin + bonus for winning)
+    const currentLevel = user.level || 1;
+    const currentXp = user.xp || 0;
+    const xpGained = Math.floor(bet / 10) + (totalReward > 0 ? 10 : 0);
+    user.xp = currentXp + xpGained;
+
+    // Check for level up
+    const newLevel = calculateLevel(user.xp);
+    if (newLevel > currentLevel) {
+      user.level = newLevel;
+      const title = getLevelTitle(newLevel);
+      const bonus = Math.round((getLevelBonus(newLevel) - 1) * 100);
+
+      // Add level up message to buffer
+      gamificationMessages += `\n\n🎉 *LEVEL UP!* 🎉\nYou are now Level *${newLevel}*!\nNew Title: *${title}*\nPassive Bonus: *+${bonus}%* rewards`;
+    }
+
+    // Check Daily Goals
+    if (!user.dailyGoals) {
+      const { generateDailyGoals } = require("./goals");
+      user.dailyGoals = generateDailyGoals();
+    }
+
+    const goalsToCheck: any[] = [
+      { type: "spin" },
+      { type: "bet", amount: bet },
+    ];
+
+    if (totalReward > 0) {
+      goalsToCheck.push({ type: "win", amount: totalReward / bet }); // Send multiplier for win_big check
+    } else {
+      goalsToCheck.push({ type: "loss" });
+    }
+
+    let goalsUpdated = false;
+    goalsToCheck.forEach((event) => {
+      const result = checkGoals(user, event);
+      if (result.updated) goalsUpdated = true;
+
+      result.completed.forEach((goal) => {
+        // Award goal rewards
+        user.xp = (user.xp || 0) + goal.rewardXp;
+        user.balance += goal.rewardCredits;
+
+        // Add goal message to buffer
+        gamificationMessages += `\n\n🎯 *GOAL COMPLETED!* 🎯\n*${goal.description}*\n🎁 Rewards: +${goal.rewardXp} XP, +${goal.rewardCredits} Credits`;
+      });
+    });
+
+    if (goalsUpdated || newLevel > currentLevel) {
+      updateUser(user);
+    }
+    // --- GAMIFICATION END ---
+
+    // Update stats
+    user.totalSpins = (user.totalSpins || 0) + 1;
+    user.lastBet = bet;
+    if (totalReward > 0) {
+      user.totalWins = (user.totalWins || 0) + 1;
+      user.totalWinnings = (user.totalWinnings || 0) + totalReward;
+    }
+
+    updateUser(user);
+
+    // Wait for animation
+    await new Promise((resolve) => setTimeout(resolve));
+
+    // Show result
+    const board = `| ${result[0].emoji} | ${result[1].emoji} | ${result[2].emoji} |`;
+    const currentJackpot = getJackpot();
+
+    let message = "";
+    if (totalReward > 0) {
+      message = t(lang, "spin_win", {
+        board,
+        reward: totalReward,
+        balance: user.balance,
+      });
+      if (jackpotWin > 0) {
+        message += `\n\n🚨 *JACKPOT WIN: ${jackpotWin} Credits* 🚨`;
+      }
+    } else {
+      message = t(lang, "spin_lose", {
+        board,
+        bet,
+        balance: user.balance,
+      });
+    }
+
+    message += `\n\n🎰 Global Jackpot: *${currentJackpot} Credits*`; // Add insurance message if applicable
+    if (insuranceRefund > 0) {
+      message += `\n\n🛡️ Insurance refund: +${insuranceRefund} Credits`;
+    }
+
+    // Add gamification messages
+    if (gamificationMessages) {
+      message += gamificationMessages;
+    }
+
+    // Build button rows - always include repeat button row to prevent flickering
+    const buttonRow = [
       { text: t(lang, "button_spin_10"), callback_data: "spin_10" },
       { text: t(lang, "button_spin_50"), callback_data: "spin_50" },
       { text: t(lang, "button_spin_100"), callback_data: "spin_100" },
-    ],
-  ];
+    ];
 
-  // Add second row to match final layout - show current bet as the repeat button
-  // After this spin completes, this bet will become the lastBet
-  animationButtons.push([
-    { text: `🔁 ${bet} Credits`, callback_data: `spin_${bet}` },
-  ]);
+    const buttons = [buttonRow];
 
-  const msg = await ctx.reply(spinningText, {
-    parse_mode: "Markdown",
-    reply_markup: {
-      inline_keyboard: animationButtons,
-    },
-  });
-
-  // Animation loop - show 3 intermediate spins
-  for (let i = 0; i < 3; i++) {
-    await delay(150);
-    const tempResult = spinSlots(user.activeUpgrades || []);
-    const tempBoard = `${tempResult[0].emoji} | ${tempResult[1].emoji} | ${tempResult[2].emoji}`;
-    try {
-      await ctx.telegram.editMessageText(
-        msg.chat.id,
-        msg.message_id,
-        undefined,
-        t(lang, "spin_spinning").replace("❓ | ❓ | ❓", tempBoard),
+    // Always add second row with repeat button (or placeholder) to prevent flickering
+    if (user.lastBet && user.balance >= user.lastBet) {
+      buttons.push([
         {
-          parse_mode: "Markdown",
-          reply_markup: {
-            inline_keyboard: animationButtons,
-          },
-        }
-      );
-    } catch (e) {
-      // Ignore errors if message is not modified
+          text: `🔁 ${user.lastBet} Credits`,
+          callback_data: `spin_${user.lastBet}`,
+        },
+      ]);
+    } else if (user.lastBet && user.balance > 0) {
+      // Allow user to play with their remaining balance when they can't afford last bet
+      buttons.push([
+        {
+          text: `🔁 ${user.balance} Credits`,
+          callback_data: `spin_${user.balance}`,
+        },
+      ]);
+    } else {
+      // Show buy button when user has no balance
+      buttons.push([
+        { text: "💰 Buy Credits", callback_data: "show_buy_menu" },
+      ]);
     }
-  }
 
-  await delay(200);
-
-  const result = spinSlots(user.activeUpgrades || []);
-  const reward = calculateReward(bet, result, user.activeUpgrades || [], user.level || 1);
-
-  // Calculate insurance refund if applicable
-  let insuranceRefund = 0;
-  if (reward === 0 && user.activeUpgrades) {
-    user.activeUpgrades.forEach((au) => {
-      if (au.spinsRemaining && au.spinsRemaining > 0) {
-        const upgrade = getUpgradeById(au.upgradeId);
-        if (upgrade?.effect.insurance) {
-          insuranceRefund = Math.max(
-            insuranceRefund,
-            bet * (upgrade.effect.insurance / 100)
-          );
-        }
+    // Edit the message with final result and buttons
+    await ctx.telegram.editMessageText(
+      msg.chat.id,
+      msg.message_id,
+      undefined,
+      message,
+      {
+        parse_mode: "Markdown",
+        reply_markup: {
+          inline_keyboard: buttons,
+        },
       }
-    });
-  }
-
-  user.balance -= bet;
-  // user.balance += reward; // Removed: reward added later
-  // user.balance += insuranceRefund; // Removed: insurance added later
-  user.lastBet = bet; // Save last bet for repeat button
-
-  // Consume upgrades (decrease spins remaining)
-  if (user.activeUpgrades) {
-    user.activeUpgrades = user.activeUpgrades
-      .map((au) => ({
-        ...au,
-        spinsRemaining: au.spinsRemaining ? au.spinsRemaining - 1 : 0,
-      }))
-      .filter((au) => au.spinsRemaining && au.spinsRemaining > 0); // Remove expired upgrades
-  }
-
-  // 1. Deduct balance
-  user.balance -= bet;
-  
-  // 2. Contribute to Jackpot (1%)
-  const jackpotContribution = Math.max(1, Math.floor(bet * 0.01));
-  addToJackpot(jackpotContribution);
-
-  // 3. Spin (Already spun above, reusing result)
-  // const result = spinSlots(user.activeUpgrades || []); // Removed duplicate
-  // const reward = calculateReward(bet, result, user.activeUpgrades || [], user.level); // Removed duplicate
-  
-  // 4. Check for Jackpot Win (🎰 | 🎰 | 🎰)
-  let jackpotWin = 0;
-  if (result[0].emoji === "🎰" && result[1].emoji === "🎰" && result[2].emoji === "🎰") {
-    jackpotWin = getJackpot();
-    resetJackpot();
-    // Announce Jackpot
-    bot.telegram.sendMessage(ctx.chat!.id, `🚨 *JACKPOT WINNER!* 🚨\n\n@${ctx.from!.username || ctx.from!.first_name} just won the Global Jackpot of *${jackpotWin} Credits*!`, { parse_mode: "Markdown" });
-  }
-
-  const totalReward = reward + jackpotWin + insuranceRefund;
-  user.balance += totalReward;
-  
-  // --- GAMIFICATION START ---
-  let gamificationMessages = "";
-
-  // Add XP (1 per spin + bonus for winning)
-  const currentLevel = user.level || 1;
-  const currentXp = user.xp || 0;
-  const xpGained = Math.floor(bet / 10) + (totalReward > 0 ? 10 : 0);
-  user.xp = currentXp + xpGained;
-  
-  // Check for level up
-  const newLevel = calculateLevel(user.xp);
-  if (newLevel > currentLevel) {
-    user.level = newLevel;
-    const title = getLevelTitle(newLevel);
-    const bonus = Math.round((getLevelBonus(newLevel) - 1) * 100);
-    
-    // Add level up message to buffer
-    gamificationMessages += `\n\n🎉 *LEVEL UP!* 🎉\nYou are now Level *${newLevel}*!\nNew Title: *${title}*\nPassive Bonus: *+${bonus}%* rewards`;
-  }
-
-  // Check Daily Goals
-  if (!user.dailyGoals) {
-    const { generateDailyGoals } = require("./goals");
-    user.dailyGoals = generateDailyGoals();
-  }
-
-  const goalsToCheck: any[] = [
-    { type: "spin" },
-    { type: "bet", amount: bet }
-  ];
-
-  if (totalReward > 0) {
-    goalsToCheck.push({ type: "win", amount: totalReward / bet }); // Send multiplier for win_big check
-  } else {
-    goalsToCheck.push({ type: "loss" });
-  }
-
-  let goalsUpdated = false;
-  goalsToCheck.forEach(event => {
-    const result = checkGoals(user, event);
-    if (result.updated) goalsUpdated = true;
-    
-    result.completed.forEach(goal => {
-      // Award goal rewards
-      user.xp = (user.xp || 0) + goal.rewardXp;
-      user.balance += goal.rewardCredits;
-      
-      // Add goal message to buffer
-      gamificationMessages += `\n\n🎯 *GOAL COMPLETED!* 🎯\n*${goal.description}*\n🎁 Rewards: +${goal.rewardXp} XP, +${goal.rewardCredits} Credits`;
-    });
-  });
-
-  if (goalsUpdated || newLevel > currentLevel) {
-    updateUser(user);
-  }
-  // --- GAMIFICATION END ---
-
-  // Update stats
-  user.totalSpins = (user.totalSpins || 0) + 1;
-  user.lastBet = bet;
-  if (totalReward > 0) {
-    user.totalWins = (user.totalWins || 0) + 1;
-    user.totalWinnings = (user.totalWinnings || 0) + totalReward;
-  }
-
-  updateUser(user);
-  
-  // Wait for animation
-  await new Promise((resolve) => setTimeout(resolve));
-  
-
-
-  // Show result
-  const board = `| ${result[0].emoji} | ${result[1].emoji} | ${result[2].emoji} |`;
-  const currentJackpot = getJackpot();
-  
-  let message = "";
-  if (totalReward > 0) {
-    message = t(lang, "spin_win", {
-      board,
-      reward: totalReward,
-      balance: user.balance,
-    });
-    if (jackpotWin > 0) {
-      message += `\n\n🚨 *JACKPOT WIN: ${jackpotWin} Credits* 🚨`;
-    }
-  } else {
-    message = t(lang, "spin_lose", {
-      board,
-      bet,
-      balance: user.balance,
-    });
-  }
-  
-  message += `\n\n🎰 Global Jackpot: *${currentJackpot} Credits*`; // Add insurance message if applicable
-  if (insuranceRefund > 0) {
-    message += `\n\n🛡️ Insurance refund: +${insuranceRefund} Credits`;
-  }
-
-  // Add gamification messages
-  if (gamificationMessages) {
-    message += gamificationMessages;
-  }
-
-  // Build button rows - always include repeat button row to prevent flickering
-  const buttonRow = [
-    { text: t(lang, "button_spin_10"), callback_data: "spin_10" },
-    { text: t(lang, "button_spin_50"), callback_data: "spin_50" },
-    { text: t(lang, "button_spin_100"), callback_data: "spin_100" },
-  ];
-
-  const buttons = [buttonRow];
-
-  // Always add second row with repeat button (or placeholder) to prevent flickering
-  if (user.lastBet && user.balance >= user.lastBet) {
-    buttons.push([
-      { text: `🔁 ${user.lastBet} Credits`, callback_data: `spin_${user.lastBet}` },
-    ]);
-  } else if (user.lastBet && user.balance > 0) {
-    // Allow user to play with their remaining balance when they can't afford last bet
-    buttons.push([{ text: `🔁 ${user.balance} Credits`, callback_data: `spin_${user.balance}` }]);
-  } else {
-    // Show buy button when user has no balance
-    buttons.push([{ text: "💰 Buy Credits", callback_data: "show_buy_menu" }]);
-  }
-
-  // Edit the message with final result and buttons
-  await ctx.telegram.editMessageText(
-    msg.chat.id,
-    msg.message_id,
-    undefined,
-    message,
-    {
-      parse_mode: "Markdown",
-      reply_markup: {
-        inline_keyboard: buttons,
-      },
-    }
-  );
+    );
   } finally {
     // Release spin lock
     user.isSpinning = false;
@@ -1069,7 +1124,7 @@ bot.command("invite", (ctx) => {
   const user = getUser(ctx.from!.id);
   const botUsername = ctx.botInfo.username;
   const link = getReferralLink(botUsername, user.id);
-  
+
   let message = "🤝 *INVITE FRIENDS* 🤝\n\n";
   message += "Invite your friends and earn rewards!\n\n";
   message += `💰 *Reward per friend:* 1000 Credits + 50 XP\n`;
@@ -1079,13 +1134,18 @@ bot.command("invite", (ctx) => {
   message += `Total Earnings: *${user.referralEarnings || 0} Credits*\n\n`;
   message += `🔗 *Your Referral Link:*\n\`${link}\``;
 
-  ctx.reply(message, { 
+  ctx.reply(message, {
     parse_mode: "Markdown",
     reply_markup: {
       inline_keyboard: [
-        [{ text: "📤 Share Link", url: `https://t.me/share/url?url=${link}&text=Join me on Slot Bot and get 1000 free credits!` }]
-      ]
-    }
+        [
+          {
+            text: "📤 Share Link",
+            url: `https://t.me/share/url?url=${link}&text=Join me on Slot Bot and get 1000 free credits!`,
+          },
+        ],
+      ],
+    },
   });
 });
 
@@ -1094,8 +1154,10 @@ bot.command("jackpot", (ctx) => {
   const user = getUser(ctx.from.id);
   const lang = user.language as Language;
   const amount = getJackpot();
-  
-  const message = `${t(lang, "jackpot_title")}\n\n${t(lang, "jackpot_pool", { amount })}\n\n${t(lang, "jackpot_info")}`;
+
+  const message = `${t(lang, "jackpot_title")}\n\n${t(lang, "jackpot_pool", {
+    amount,
+  })}\n\n${t(lang, "jackpot_info")}`;
   ctx.reply(message, { parse_mode: "Markdown" });
 });
 
@@ -1114,32 +1176,29 @@ bot.action("noop", (ctx) => {
 bot.action("show_buy_menu", async (ctx) => {
   const user = getUser(ctx.from!.id);
   const lang = user.language as Language;
-  
+
   await ctx.answerCbQuery();
-  
-  await ctx.reply(
-    t(lang, "buy_title") + t(lang, "buy_packages"),
-    {
-      parse_mode: "Markdown",
-      reply_markup: {
-        inline_keyboard: [
-          [{ text: t(lang, "buy_button_10"), callback_data: "buy_10" }],
-          [{ text: t(lang, "buy_button_100"), callback_data: "buy_100" }],
-          [{ text: t(lang, "buy_button_500"), callback_data: "buy_500" }],
-          [{ text: t(lang, "buy_button_1000"), callback_data: "buy_1000" }],
-        ],
-      },
-    }
-  );
+
+  await ctx.reply(t(lang, "buy_title") + t(lang, "buy_packages"), {
+    parse_mode: "Markdown",
+    reply_markup: {
+      inline_keyboard: [
+        [{ text: t(lang, "buy_button_10"), callback_data: "buy_10" }],
+        [{ text: t(lang, "buy_button_100"), callback_data: "buy_100" }],
+        [{ text: t(lang, "buy_button_500"), callback_data: "buy_500" }],
+        [{ text: t(lang, "buy_button_1000"), callback_data: "buy_1000" }],
+      ],
+    },
+  });
 });
 
 // Callback handlers for grouped command buttons
 bot.action("show_info", async (ctx) => {
   const user = getUser(ctx.from!.id);
   const lang = user.language as Language;
-  
+
   await ctx.answerCbQuery();
-  
+
   ctx.reply(
     t(lang, "info_title") +
       t(lang, "info_combinations") +
@@ -1156,32 +1215,36 @@ bot.action("show_jackpot", async (ctx) => {
   const user = getUser(ctx.from.id);
   const lang = user.language as Language;
   const amount = getJackpot();
-  
+
   await ctx.answerCbQuery();
-  
-  const message = `${t(lang, "jackpot_title")}\n\n${t(lang, "jackpot_pool", { amount })}\n\n${t(lang, "jackpot_info")}`;
+
+  const message = `${t(lang, "jackpot_title")}\n\n${t(lang, "jackpot_pool", {
+    amount,
+  })}\n\n${t(lang, "jackpot_info")}`;
   ctx.reply(message, { parse_mode: "Markdown" });
 });
 
 bot.action("show_profile", async (ctx) => {
   const user = getUser(ctx.from!.id);
   const lang = user.language as Language;
-  
+
   await ctx.answerCbQuery();
-  
+
   const level = user.level || 1;
   const title = getLevelTitle(level);
   const progress = getLevelProgress(user.xp || 0, level);
   const bonus = Math.round((getLevelBonus(level) - 1) * 100);
-  
-  const progressBar = "▓".repeat(Math.floor(progress.percentage / 10)) + "░".repeat(10 - Math.floor(progress.percentage / 10));
+
+  const progressBar =
+    "▓".repeat(Math.floor(progress.percentage / 10)) +
+    "░".repeat(10 - Math.floor(progress.percentage / 10));
 
   let message = `👤 *USER PROFILE* 👤\n\n`;
   message += `📜 Title: *${title}*\n`;
   message += `🆙 Level: *${level}*\n`;
   message += `✨ XP: ${progress.current} / ${progress.total}\n`;
   message += `   ${progressBar} ${progress.percentage}%\n\n`;
-  
+
   message += `💎 *Stats:*\n`;
   message += `💰 Balance: ${user.balance} Credits\n`;
   message += `🍀 Level Bonus: +${bonus}% rewards\n`;
@@ -1194,9 +1257,9 @@ bot.action("show_profile", async (ctx) => {
 bot.action("show_goals", async (ctx) => {
   const user = getUser(ctx.from!.id);
   const lang = user.language as Language;
-  
+
   await ctx.answerCbQuery();
-  
+
   if (!user.dailyGoals || user.dailyGoals.length === 0) {
     const { generateDailyGoals } = require("./goals");
     user.dailyGoals = generateDailyGoals();
@@ -1204,12 +1267,17 @@ bot.action("show_goals", async (ctx) => {
   }
 
   let message = "🎯 *DAILY GOALS* 🎯\n\n";
-  
-  user.dailyGoals!.forEach(goal => {
+
+  user.dailyGoals!.forEach((goal) => {
     const status = goal.completed ? "✅" : "⬜";
-    const progress = Math.min(100, Math.floor((goal.current / goal.target) * 100));
-    const progressBar = "▓".repeat(Math.floor(progress / 10)) + "░".repeat(10 - Math.floor(progress / 10));
-    
+    const progress = Math.min(
+      100,
+      Math.floor((goal.current / goal.target) * 100)
+    );
+    const progressBar =
+      "▓".repeat(Math.floor(progress / 10)) +
+      "░".repeat(10 - Math.floor(progress / 10));
+
     message += `${status} *${goal.description}*\n`;
     if (goal.completed) {
       message += `   🎉 Completed! (+${goal.rewardXp} XP, +${goal.rewardCredits} Credits)\n\n`;
@@ -1225,9 +1293,9 @@ bot.action("show_goals", async (ctx) => {
 bot.action("show_daily", async (ctx) => {
   const user = getUser(ctx.from!.id);
   const lang = user.language as Language;
-  
+
   await ctx.answerCbQuery();
-  
+
   const { canClaimDailyBonus, getDailyBonusAmount } = require("./dailyBonus");
 
   const streak = user.consecutiveDays || 0;
@@ -1254,9 +1322,9 @@ bot.action("show_daily", async (ctx) => {
 bot.action("show_invite", async (ctx) => {
   const user = getUser(ctx.from!.id);
   const lang = user.language as Language;
-  
+
   await ctx.answerCbQuery();
-  
+
   const botUsername = (await ctx.telegram.getMe()).username || "slot_bot";
   const link = getReferralLink(botUsername, user.id);
   const referralCount = user.referralCount || 0;
@@ -1278,9 +1346,9 @@ bot.action("show_invite", async (ctx) => {
 bot.action("show_language", async (ctx) => {
   const user = getUser(ctx.from!.id);
   const lang = user.language as Language;
-  
+
   await ctx.answerCbQuery();
-  
+
   ctx.reply(t(lang, "language_select"), {
     parse_mode: "Markdown",
     reply_markup: {
@@ -1305,9 +1373,9 @@ bot.action("show_language", async (ctx) => {
 bot.action("show_help", async (ctx) => {
   const user = getUser(ctx.from!.id);
   const lang = user.language as Language;
-  
+
   await ctx.answerCbQuery();
-  
+
   ctx.reply(
     t(lang, "help_title") +
       t(lang, "help_start") +
@@ -1325,15 +1393,165 @@ bot.action("show_help", async (ctx) => {
 bot.action("show_balance", async (ctx) => {
   const user = getUser(ctx.from!.id);
   const lang = user.language as Language;
-  
+
   await ctx.answerCbQuery();
-  
+
   ctx.reply(t(lang, "balance_current", { balance: user.balance }));
 });
 
-
 bot.launch();
 console.log("Bot iniciado...");
+
+// Set multi-language bot info for Telegram search/discovery
+async function setupBotInfo() {
+  const botInfo = {
+    // Default (English)
+    en: {
+      name: "🎰 Slot Machine Casino",
+      shortDescription:
+        "🎰 Free slots! Win jackpots, level up & get 10K credits! 🍒🎲",
+      description: `🎰 FREE SLOT MACHINE GAME 🎰
+
+🎮 Spin to win up to 150x your bet!
+🏆 Global Jackpot - Win the entire pool!
+🎁 Daily Login Bonus - Up to 50,000 credits!
+🏪 Upgrade Shop - Boost your odds!
+📈 Level Up System - Earn XP & bonuses!
+🎯 Daily Goals - Complete for rewards!
+🌍 6 Languages: EN/ES/DE/IT/FR/RU
+
+Start with 10,000 FREE credits!
+No real money - Just fun! 🎲`,
+    },
+    es: {
+      name: "🎰 Tragamonedas Casino",
+      shortDescription:
+        "🎰 ¡Tragamonedas gratis! Jackpots, niveles y 10K créditos 🍒🎲",
+      description: `🎰 TRAGAMONEDAS GRATIS 🎰
+
+🎮 ¡Gira y gana hasta 150x tu apuesta!
+🏆 Jackpot Global - ¡Gana todo el bote!
+🎁 Bonus Diario - ¡Hasta 50,000 créditos!
+🏪 Tienda de Mejoras - ¡Aumenta tus odds!
+📈 Sistema de Niveles - ¡Gana XP y bonos!
+🎯 Metas Diarias - ¡Completa para premios!
+🌍 6 Idiomas: EN/ES/DE/IT/FR/RU
+
+¡Empieza con 10,000 créditos GRATIS!
+Sin dinero real - ¡Solo diversión! 🎲`,
+    },
+    de: {
+      name: "🎰 Spielautomat Casino",
+      shortDescription:
+        "🎰 Gratis Slots! Jackpots, Level & 10K Credits gewinnen 🍒🎲",
+      description: `🎰 GRATIS SPIELAUTOMAT 🎰
+
+🎮 Drehe und gewinne bis zu 150x deinen Einsatz!
+🏆 Globaler Jackpot - Gewinne den gesamten Pool!
+🎁 Täglicher Bonus - Bis zu 50.000 Credits!
+🏪 Upgrade-Shop - Verbessere deine Chancen!
+📈 Level-System - Verdiene XP & Boni!
+🎯 Tägliche Ziele - Erfülle für Belohnungen!
+🌍 6 Sprachen: EN/ES/DE/IT/FR/RU
+
+Starte mit 10.000 GRATIS Credits!
+Kein echtes Geld - Nur Spaß! 🎲`,
+    },
+    it: {
+      name: "🎰 Slot Machine Casinò",
+      shortDescription:
+        "🎰 Slot gratis! Jackpot, livelli e 10K crediti gratis 🍒🎲",
+      description: `🎰 SLOT MACHINE GRATIS 🎰
+
+🎮 Gira e vinci fino a 150x la tua puntata!
+🏆 Jackpot Globale - Vinci l'intero montepremi!
+🎁 Bonus Giornaliero - Fino a 50.000 crediti!
+🏪 Negozio Upgrade - Aumenta le tue probabilità!
+📈 Sistema Livelli - Guadagna XP e bonus!
+🎯 Obiettivi Giornalieri - Completa per premi!
+🌍 6 Lingue: EN/ES/DE/IT/FR/RU
+
+Inizia con 10.000 crediti GRATIS!
+Niente soldi veri - Solo divertimento! 🎲`,
+    },
+    fr: {
+      name: "🎰 Machine à Sous Casino",
+      shortDescription:
+        "🎰 Slots gratuits! Jackpots, niveaux et 10K crédits 🍒🎲",
+      description: `🎰 MACHINE À SOUS GRATUITE 🎰
+
+🎮 Tournez et gagnez jusqu'à 150x votre mise!
+🏆 Jackpot Mondial - Gagnez toute la cagnotte!
+🎁 Bonus Quotidien - Jusqu'à 50 000 crédits!
+🏪 Boutique d'Améliorations - Boostez vos chances!
+📈 Système de Niveaux - Gagnez XP et bonus!
+🎯 Objectifs Quotidiens - Complétez pour récompenses!
+🌍 6 Langues: EN/ES/DE/IT/FR/RU
+
+Commencez avec 10 000 crédits GRATUITS!
+Pas d'argent réel - Juste du fun! 🎲`,
+    },
+    ru: {
+      name: "🎰 Слот Машина Казино",
+      shortDescription: "🎰 Бесплатные слоты! Джекпоты и 10К кредитов 🍒🎲",
+      description: `🎰 БЕСПЛАТНЫЙ ИГРОВОЙ АВТОМАТ 🎰
+
+🎮 Крутите и выигрывайте до 150x вашей ставки!
+🏆 Глобальный Джекпот - Выиграйте весь банк!
+🎁 Ежедневный Бонус - До 50 000 кредитов!
+🏪 Магазин Улучшений - Повысьте свои шансы!
+📈 Система Уровней - Зарабатывайте XP и бонусы!
+🎯 Ежедневные Цели - Выполняйте для наград!
+🌍 6 Языков: EN/ES/DE/IT/FR/RU
+
+Начните с 10 000 БЕСПЛАТНЫХ кредитов!
+Без реальных денег - Только веселье! 🎲`,
+    },
+  };
+
+  try {
+    // Set default (no language code = fallback for all)
+    await bot.telegram.callApi("setMyName", { name: botInfo.en.name });
+    await bot.telegram.callApi("setMyShortDescription", {
+      short_description: botInfo.en.shortDescription,
+    });
+    await bot.telegram.callApi("setMyDescription", {
+      description: botInfo.en.description,
+    });
+    await bot.telegram.setMyCommands(menuCommands.en);
+
+    // Set for each language
+    for (const [lang, info] of Object.entries(botInfo)) {
+      if (lang === "en") continue; // Already set as default
+      await bot.telegram.callApi("setMyName", {
+        name: info.name,
+        language_code: lang,
+      });
+      await bot.telegram.callApi("setMyShortDescription", {
+        short_description: info.shortDescription,
+        language_code: lang,
+      });
+      await bot.telegram.callApi("setMyDescription", {
+        description: info.description,
+        language_code: lang,
+      });
+      // Set commands for this language
+      if (menuCommands[lang as Language]) {
+        await bot.telegram.callApi("setMyCommands", {
+          commands: menuCommands[lang as Language],
+          language_code: lang,
+        });
+      }
+    }
+
+    console.log("✅ Multi-language bot info configured!");
+  } catch (error) {
+    console.error("Error setting bot info:", error);
+  }
+}
+
+// Run setup after bot launches
+setupBotInfo();
 
 // Payment button handlers
 const packages = {

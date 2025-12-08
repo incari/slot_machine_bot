@@ -9,7 +9,7 @@ export const translations: Record<Language, Translation> = {
     // Commands
     start_welcome:
       "🎰 Welcome to the Credits Slot Machine!\nYour balance: {balance} Credits\n\n*Choose your bet:*",
-    
+
     welcome_guide: `🎰 *WELCOME TO CREDITS SLOT MACHINE!* 🎰
 
 ━━━━━━━━━━━━━━━━━━━━━
@@ -128,7 +128,8 @@ Choose your bet (10, 50, or 100 credits) and spin! Match 3 symbols to win big!
     // Jackpot
     jackpot_title: "🎰 *GLOBAL JACKPOT* 🎰",
     jackpot_pool: "Current Pool: *{amount} Credits*",
-    jackpot_info: "Spin to win! 1% of every bet grows the pot.\nHit 🎰 | 🎰 | 🎰 to win it all!",
+    jackpot_info:
+      "Spin to win! 1% of every bet grows the pot.\nHit 🎰 | 🎰 | 🎰 to win it all!",
 
     // Language
     language_select:
@@ -188,7 +189,7 @@ Choose your bet (10, 50, or 100 credits) and spin! Match 3 symbols to win big!
     // Commands
     start_welcome:
       "🎰 ¡Bienvenido a la tragamonedas Credits!\nTu balance: {balance} Credits\n\n*Elige tu apuesta:*",
-    
+
     welcome_guide: `🎰 *¡BIENVENIDO A CREDITS SLOT MACHINE!* 🎰
 
 ━━━━━━━━━━━━━━━━━━━━━
@@ -304,7 +305,8 @@ Choose your bet (10, 50, or 100 credits) and spin! Match 3 symbols to win big!
     // Jackpot
     jackpot_title: "🎰 *BOTE GLOBAL* 🎰",
     jackpot_pool: "Bote Actual: *{amount} Créditos*",
-    jackpot_info: "¡Gira para ganar! El 1% de cada apuesta aumenta el bote.\n¡Consigue 🎰 | 🎰 | 🎰 para ganarlo todo!",
+    jackpot_info:
+      "¡Gira para ganar! El 1% de cada apuesta aumenta el bote.\n¡Consigue 🎰 | 🎰 | 🎰 para ganarlo todo!",
 
     language_select: "🌍 *Seleccionar Idioma* 🌍\n\nElige tu idioma preferido:",
     language_changed: "✅ ¡Idioma cambiado a Español!",
@@ -358,7 +360,7 @@ Choose your bet (10, 50, or 100 credits) and spin! Match 3 symbols to win big!
   de: {
     start_welcome:
       "🎰 Willkommen beim Credits Spielautomaten!\nDein Guthaben: {balance} Credits\n\n*Wähle deinen Einsatz:*",
-    
+
     welcome_guide: `🎰 *WILLKOMMEN BEI CREDITS SLOT MACHINE!* 🎰
 
 ━━━━━━━━━━━━━━━━━━━━━
@@ -474,7 +476,8 @@ Wähle deinen Einsatz (10, 50 oder 100 Credits) und drehe! Kombiniere 3 Symbole 
     // Jackpot
     jackpot_title: "🎰 *GLOBALER JACKPOT* 🎰",
     jackpot_pool: "Aktueller Pool: *{amount} Credits*",
-    jackpot_info: "Drehen Sie, um zu gewinnen! 1% jeder Wette lässt den Pot wachsen.\nErhalten Sie 🎰 | 🎰 | 🎰, um alles zu gewinnen!",
+    jackpot_info:
+      "Drehen Sie, um zu gewinnen! 1% jeder Wette lässt den Pot wachsen.\nErhalten Sie 🎰 | 🎰 | 🎰, um alles zu gewinnen!",
 
     language_select:
       "🌍 *Sprache wählen* 🌍\n\nWähle deine bevorzugte Sprache:",
@@ -529,7 +532,7 @@ Wähle deinen Einsatz (10, 50 oder 100 Credits) und drehe! Kombiniere 3 Symbole 
   it: {
     start_welcome:
       "🎰 Benvenuto alla Slot Machine Credits!\nIl tuo saldo: {balance} Credits\n\n*Scegli la tua puntata:*",
-    
+
     welcome_guide: `🎰 *BENVENUTO A CREDITS SLOT MACHINE!* 🎰
 
 ━━━━━━━━━━━━━━━━━━━━━
@@ -645,7 +648,8 @@ Scegli la tua puntata (10, 50 o 100 crediti) e gira! Combina 3 simboli per vince
     // Jackpot
     jackpot_title: "🎰 *JACKPOT GLOBALE* 🎰",
     jackpot_pool: "Pool Attuale: *{amount} Crediti*",
-    jackpot_info: "Gira per vincere! L'1% di ogni scommessa fa crescere il montepremi.\nOttieni 🎰 | 🎰 | 🎰 per vincere tutto!",
+    jackpot_info:
+      "Gira per vincere! L'1% di ogni scommessa fa crescere il montepremi.\nOttieni 🎰 | 🎰 | 🎰 per vincere tutto!",
 
     language_select:
       "🌍 *Seleziona Lingua* 🌍\n\nScegli la tua lingua preferita:",
@@ -700,7 +704,7 @@ Scegli la tua puntata (10, 50 o 100 crediti) e gira! Combina 3 simboli per vince
   fr: {
     start_welcome:
       "🎰 Bienvenue à la Machine à Sous Credits!\nVotre solde: {balance} Credits\n\n*Choisissez votre mise:*",
-    
+
     welcome_guide: `🎰 *BIENVENUE À CREDITS SLOT MACHINE!* 🎰
 
 ━━━━━━━━━━━━━━━━━━━━━
@@ -816,7 +820,8 @@ Choisissez votre mise (10, 50 ou 100 crédits) et tournez! Combinez 3 symboles p
     // Jackpot
     jackpot_title: "🎰 *JACKPOT MONDIAL* 🎰",
     jackpot_pool: "Cagnotte Actuelle : *{amount} Crédits*",
-    jackpot_info: "Tournez pour gagner ! 1% de chaque mise fait grossir la cagnotte.\nObtenez 🎰 | 🎰 | 🎰 pour tout gagner !",
+    jackpot_info:
+      "Tournez pour gagner ! 1% de chaque mise fait grossir la cagnotte.\nObtenez 🎰 | 🎰 | 🎰 pour tout gagner !",
 
     language_select:
       "🌍 *Sélectionner la Langue* 🌍\n\nChoisissez votre langue préférée:",
@@ -872,7 +877,7 @@ Choisissez votre mise (10, 50 ou 100 crédits) et tournez! Combinez 3 symboles p
   ru: {
     start_welcome:
       "🎰 Добро пожаловать в игровой автомат Credits!\nВаш баланс: {balance} Credits\n\n*Выберите ставку:*",
-    
+
     welcome_guide: `🎰 *ДОБРО ПОЖАЛОВАТЬ В CREDITS SLOT MACHINE!* 🎰
 
 ━━━━━━━━━━━━━━━━━━━━━
@@ -988,7 +993,8 @@ Choisissez votre mise (10, 50 ou 100 crédits) et tournez! Combinez 3 symboles p
     // Jackpot
     jackpot_title: "🎰 *ГЛОБАЛЬНЫЙ ДЖЕКПОТ* 🎰",
     jackpot_pool: "Текущий банк: *{amount} кредитов*",
-    jackpot_info: "Крутите, чтобы выиграть! 1% от каждой ставки увеличивает банк.\nПолучите 🎰 | 🎰 | 🎰, чтобы забрать всё!",
+    jackpot_info:
+      "Крутите, чтобы выиграть! 1% от каждой ставки увеличивает банк.\nПолучите 🎰 | 🎰 | 🎰, чтобы забрать всё!",
 
     language_select: "🌍 *Выбрать Язык* 🌍\n\nВыберите предпочитаемый язык:",
     language_changed: "✅ Язык изменен на Русский!",
@@ -1056,3 +1062,112 @@ export function t(
 
   return text;
 }
+
+// Bot menu commands for each language
+export const menuCommands: Record<
+  Language,
+  { command: string; description: string }[]
+> = {
+  en: [
+    { command: "start", description: "🎮 Start playing" },
+    { command: "play", description: "🎰 Open spin menu" },
+    { command: "spin", description: "🎲 Quick spin (/spin 100)" },
+    { command: "balance", description: "💰 Check credits" },
+    { command: "daily", description: "🎁 Daily bonus" },
+    { command: "jackpot", description: "🏆 View jackpot" },
+    { command: "shop", description: "🏪 Buy upgrades" },
+    { command: "profile", description: "👤 Your profile" },
+    { command: "goals", description: "🎯 Daily goals" },
+    { command: "invite", description: "👥 Invite friends" },
+    { command: "account", description: "📊 Account info" },
+    { command: "game", description: "🎲 Game info" },
+    { command: "info", description: "ℹ️ Bot info" },
+    { command: "settings", description: "⚙️ Settings" },
+    { command: "language", description: "🌍 Change language" },
+  ],
+  es: [
+    { command: "start", description: "🎮 Empezar a jugar" },
+    { command: "play", description: "🎰 Menú de giros" },
+    { command: "spin", description: "🎲 Giro rápido (/spin 100)" },
+    { command: "balance", description: "💰 Ver créditos" },
+    { command: "daily", description: "🎁 Bonus diario" },
+    { command: "jackpot", description: "🏆 Ver jackpot" },
+    { command: "shop", description: "🏪 Comprar mejoras" },
+    { command: "profile", description: "👤 Tu perfil" },
+    { command: "goals", description: "🎯 Metas diarias" },
+    { command: "invite", description: "👥 Invitar amigos" },
+    { command: "account", description: "📊 Info de cuenta" },
+    { command: "game", description: "🎲 Info del juego" },
+    { command: "info", description: "ℹ️ Info del bot" },
+    { command: "settings", description: "⚙️ Configuración" },
+    { command: "language", description: "🌍 Cambiar idioma" },
+  ],
+  de: [
+    { command: "start", description: "🎮 Spiel starten" },
+    { command: "play", description: "🎰 Spin-Menü öffnen" },
+    { command: "spin", description: "🎲 Schnelldrehen (/spin 100)" },
+    { command: "balance", description: "💰 Guthaben anzeigen" },
+    { command: "daily", description: "🎁 Täglicher Bonus" },
+    { command: "jackpot", description: "🏆 Jackpot anzeigen" },
+    { command: "shop", description: "🏪 Upgrades kaufen" },
+    { command: "profile", description: "👤 Dein Profil" },
+    { command: "goals", description: "🎯 Tägliche Ziele" },
+    { command: "invite", description: "👥 Freunde einladen" },
+    { command: "account", description: "📊 Konto-Info" },
+    { command: "game", description: "🎲 Spiel-Info" },
+    { command: "info", description: "ℹ️ Bot-Info" },
+    { command: "settings", description: "⚙️ Einstellungen" },
+    { command: "language", description: "🌍 Sprache ändern" },
+  ],
+  fr: [
+    { command: "start", description: "🎮 Commencer à jouer" },
+    { command: "play", description: "🎰 Menu de rotation" },
+    { command: "spin", description: "🎲 Rotation rapide (/spin 100)" },
+    { command: "balance", description: "💰 Voir crédits" },
+    { command: "daily", description: "🎁 Bonus quotidien" },
+    { command: "jackpot", description: "🏆 Voir jackpot" },
+    { command: "shop", description: "🏪 Acheter améliorations" },
+    { command: "profile", description: "👤 Ton profil" },
+    { command: "goals", description: "🎯 Objectifs quotidiens" },
+    { command: "invite", description: "👥 Inviter des amis" },
+    { command: "account", description: "📊 Info du compte" },
+    { command: "game", description: "🎲 Info du jeu" },
+    { command: "info", description: "ℹ️ Info du bot" },
+    { command: "settings", description: "⚙️ Paramètres" },
+    { command: "language", description: "🌍 Changer de langue" },
+  ],
+  it: [
+    { command: "start", description: "🎮 Inizia a giocare" },
+    { command: "play", description: "🎰 Menu giri" },
+    { command: "spin", description: "🎲 Giro veloce (/spin 100)" },
+    { command: "balance", description: "💰 Vedi crediti" },
+    { command: "daily", description: "🎁 Bonus giornaliero" },
+    { command: "jackpot", description: "🏆 Vedi jackpot" },
+    { command: "shop", description: "🏪 Compra upgrade" },
+    { command: "profile", description: "👤 Il tuo profilo" },
+    { command: "goals", description: "🎯 Obiettivi giornalieri" },
+    { command: "invite", description: "👥 Invita amici" },
+    { command: "account", description: "📊 Info account" },
+    { command: "game", description: "🎲 Info gioco" },
+    { command: "info", description: "ℹ️ Info bot" },
+    { command: "settings", description: "⚙️ Impostazioni" },
+    { command: "language", description: "🌍 Cambia lingua" },
+  ],
+  ru: [
+    { command: "start", description: "🎮 Начать игру" },
+    { command: "play", description: "🎰 Меню вращений" },
+    { command: "spin", description: "🎲 Быстрый спин (/spin 100)" },
+    { command: "balance", description: "💰 Проверить кредиты" },
+    { command: "daily", description: "🎁 Ежедневный бонус" },
+    { command: "jackpot", description: "🏆 Посмотреть джекпот" },
+    { command: "shop", description: "🏪 Купить улучшения" },
+    { command: "profile", description: "👤 Твой профиль" },
+    { command: "goals", description: "🎯 Ежедневные цели" },
+    { command: "invite", description: "👥 Пригласить друзей" },
+    { command: "account", description: "📊 Инфо аккаунта" },
+    { command: "game", description: "🎲 Инфо игры" },
+    { command: "info", description: "ℹ️ Инфо бота" },
+    { command: "settings", description: "⚙️ Настройки" },
+    { command: "language", description: "🌍 Сменить язык" },
+  ],
+};
