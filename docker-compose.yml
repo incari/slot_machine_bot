@@ -11,6 +11,3 @@ services:
     volumes:
       # SQLite database stored in ./data/slotbot.db
       - ./data:/app/data
-      # Keep these for migration - can remove after migrating
-      - ./users.json:/app/users.json:ro
-      - ./jackpot.json:/app/jackpot.json:ro
