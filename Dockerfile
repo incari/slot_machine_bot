@@ -1,13 +1,16 @@
 # Build stage
 FROM node:18-alpine AS builder
 
+# Install build dependencies for better-sqlite3
+RUN apk add --no-cache python3 make g++
+
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY package.json yarn.lock ./
 
 # Install dependencies
-RUN yarn install
+RUN yarn install --frozen-lockfile
 
 # Copy source code
 COPY . .
@@ -18,22 +21,22 @@ RUN yarn build
 # Production stage
 FROM node:18-alpine
 
+# Install build dependencies for better-sqlite3 (needed for native module)
+RUN apk add --no-cache python3 make g++
+
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY package.json yarn.lock ./
 
 # Install only production dependencies
-RUN yarn install --production
+RUN yarn install --frozen-lockfile --production
 
 # Copy built files from builder stage
 COPY --from=builder /app/dist ./dist
 
 # Create data directory for persistence
 RUN mkdir -p /app/data
-
-# Expose port (if needed, though bot uses polling)
-# EXPOSE 3000
 
 # Start the bot
 CMD ["node", "dist/bot.js"]

@@ -1,5 +1,3 @@
-
-
 services:
   slot-bot:
     # Use the image built by GitHub Actions
@@ -11,6 +9,8 @@ services:
       - BOT_TOKEN=${BOT_TOKEN}
       - ADMIN_ID=${ADMIN_ID}
     volumes:
+      # SQLite database stored in ./data/slotbot.db
       - ./data:/app/data
-      # Mount users.json if it exists in root, or map to data folder
-      - ./users.json:/app/users.json
+      # Keep these for migration - can remove after migrating
+      - ./users.json:/app/users.json:ro
+      - ./jackpot.json:/app/jackpot.json:ro

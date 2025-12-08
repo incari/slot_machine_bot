@@ -1,51 +1,21 @@
-import * as fs from "fs";
-import * as path from "path";
+import { db } from "./database";
 
-const DATA_FILE = path.join(__dirname, "../jackpot.json");
 const SEED_AMOUNT = 1000;
 
-interface JackpotData {
-  amount: number;
-}
-
-let jackpot: JackpotData = { amount: SEED_AMOUNT };
-
-// Load data on startup
-try {
-  if (fs.existsSync(DATA_FILE)) {
-    const data = fs.readFileSync(DATA_FILE, "utf-8");
-    jackpot = JSON.parse(data);
-    if (typeof jackpot.amount !== 'number' || isNaN(jackpot.amount)) {
-      console.error("Invalid jackpot amount, resetting to seed.");
-      jackpot.amount = SEED_AMOUNT;
-    }
-  } else {
-    console.log("Jackpot file not found, creating new one.");
-    saveJackpot();
-  }
-} catch (error) {
-  console.error("Error loading jackpot:", error);
-  jackpot = { amount: SEED_AMOUNT }; // Fallback
-}
-
-function saveJackpot() {
-  try {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(jackpot, null, 2));
-  } catch (error) {
-    console.error("Error saving jackpot:", error);
-  }
-}
+// Prepared statements
+const getStmt = db.prepare(`SELECT amount FROM jackpot WHERE id = 1`);
+const updateStmt = db.prepare(`UPDATE jackpot SET amount = ? WHERE id = 1`);
 
 export const getJackpot = (): number => {
-  return Math.floor(jackpot.amount);
+  const row = getStmt.get() as { amount: number } | undefined;
+  return Math.floor(row?.amount ?? SEED_AMOUNT);
 };
 
 export const addToJackpot = (amount: number) => {
-  jackpot.amount += amount;
-  saveJackpot();
+  const current = getJackpot();
+  updateStmt.run(current + amount);
 };
 
 export const resetJackpot = () => {
-  jackpot.amount = SEED_AMOUNT;
-  saveJackpot();
+  updateStmt.run(SEED_AMOUNT);
 };
