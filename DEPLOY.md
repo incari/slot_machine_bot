@@ -38,6 +38,6 @@
     ```
 
 ## Data Persistence
-The `users.json` file is mounted as a volume.
-- If you have an existing `users.json`, place it in the project root before starting.
-- Changes to user data will be saved to your local `users.json` file.
+Data is stored in SQLite (`data/slotbot.db`) and persisted via Docker volume.
+- The database is automatically created on first run.
+- Data is stored in the `./data` directory which is mounted as a volume.

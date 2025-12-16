@@ -173,9 +173,11 @@ slot-bot/
 ├── docker-compose.yml      # Docker Compose configuration
 ├── .dockerignore          # Files to exclude from Docker image
 ├── .env                   # Environment variables (BOT_TOKEN)
-├── users.json             # User data (persisted via volume)
+├── data/                  # SQLite database directory (auto-created)
+│   └── slotbot.db         # User and jackpot data
 ├── src/                   # Source code
 │   ├── bot.ts
+│   ├── database.ts        # SQLite database setup
 │   ├── game.ts
 │   └── ...
 └── package.json
@@ -198,29 +200,30 @@ NODE_ENV=production
 
 ## Data Persistence
 
-User data is stored in `users.json` and persisted using Docker volumes:
+Data is stored in SQLite (`data/slotbot.db`) and persisted using Docker volumes:
 
 ```yaml
 volumes:
-  - ./users.json:/app/users.json
+  - ./data:/app/data
 ```
 
 This means:
+- ✅ Database is automatically created on first run
 - ✅ Data survives container restarts
 - ✅ Data survives container rebuilds
-- ✅ You can backup `users.json` directly from the host
+- ✅ You can backup the `data/` directory directly from the host
 
-### Backing Up User Data
+### Backing Up Data
 
 ```bash
 # Create backup
-cp users.json users.json.backup
+cp -r data/ data.backup/
 
 # Or with timestamp
-cp users.json users.json.$(date +%Y%m%d_%H%M%S)
+cp data/slotbot.db data/slotbot.db.$(date +%Y%m%d_%H%M%S)
 
 # Restore from backup
-cp users.json.backup users.json
+cp data.backup/slotbot.db data/slotbot.db
 docker-compose restart
 ```
 
@@ -263,8 +266,8 @@ df -h
 ### Permission Issues
 
 ```bash
-# Fix users.json permissions
-chmod 666 users.json
+# Fix data directory permissions
+chmod -R 755 data/
 
 # Or run as root (not recommended)
 sudo docker-compose up -d
@@ -351,9 +354,9 @@ logging:
 - [ ] `.env` is in `.gitignore` (already done)
 - [ ] Docker and Docker Compose installed on server
 - [ ] Bot tested locally before deployment
-- [ ] `users.json` has correct permissions
+- [ ] `data/` directory has correct permissions
 - [ ] Firewall allows outbound HTTPS (port 443) for Telegram API
-- [ ] Backup strategy for `users.json` in place
+- [ ] Backup strategy for `data/slotbot.db` in place
 - [ ] Monitoring/logging set up
 
 ---
@@ -377,7 +380,7 @@ docker-compose restart
 git pull && docker-compose up -d --build
 
 # Backup data
-cp users.json users.json.backup
+cp data/slotbot.db data/slotbot.db.backup
 
 # Check status
 docker-compose ps
@@ -390,7 +393,7 @@ docker-compose ps
 1. **Set up automatic backups:**
    ```bash
    # Add to crontab
-   0 2 * * * cp /path/to/slot-bot/users.json /path/to/backups/users.json.$(date +\%Y\%m\%d)
+   0 2 * * * cp /path/to/slot-bot/data/slotbot.db /path/to/backups/slotbot.db.$(date +\%Y\%m\%d)
    ```
 
 2. **Monitor with Portainer (optional):**
@@ -401,8 +404,6 @@ docker-compose ps
    ```
 
 3. **Set up alerts** for container failures
-
-4. **Consider migrating to a database** instead of `users.json` for better scalability
 
 ---
 

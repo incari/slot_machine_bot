@@ -8,6 +8,8 @@ services:
     environment:
       - BOT_TOKEN=${BOT_TOKEN}
       - ADMIN_ID=${ADMIN_ID}
+      - DATA_DIR=/app/data
     volumes:
-      # SQLite database stored in ./data/slotbot.db
+      # SQLite database stored in ./data/slotbot.db (auto-created on first run)
       - ./data:/app/data
+

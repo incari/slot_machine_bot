@@ -32,57 +32,15 @@ bot.start(async (ctx) => {
     parse_mode: "Markdown",
   });
 
-  // Process daily login bonus
-  const dailyResult = processDailyLogin(user);
-
-  if (dailyResult.claimed) {
-    // Award the bonus
-    user.balance += dailyResult.bonus;
-    updateUser(user);
-
-    const emoji = getDailyBonusEmoji(dailyResult.consecutiveDays);
-
-    // Show bonus message
-    if (dailyResult.streakBroken) {
-      await ctx.reply(
-        t(lang, "daily_bonus_streak_broken", {
-          emoji,
-          bonus: dailyResult.bonus,
-          balance: user.balance,
-        }),
-        { parse_mode: "Markdown" }
-      );
-    } else {
-      await ctx.reply(
-        t(lang, "daily_bonus_claimed", {
-          emoji,
-          bonus: dailyResult.bonus,
-          streak: dailyResult.consecutiveDays,
-          balance: user.balance,
-        }),
-        { parse_mode: "Markdown" }
-      );
-    }
-  } else if (dailyResult.alreadyClaimed) {
-    // Already claimed today
-    await ctx.reply(
-      t(lang, "daily_bonus_already_claimed", {
-        streak: dailyResult.consecutiveDays,
-        balance: user.balance,
-      }),
-      { parse_mode: "Markdown" }
-    );
-  }
-
   // Show welcome message with spin buttons
   ctx.reply(t(lang, "start_welcome", { balance: user.balance }), {
     parse_mode: "Markdown",
     reply_markup: {
       inline_keyboard: [
         [
-          { text: "💰 10 Credits", callback_data: "spin_10" },
-          { text: "💰 50 Credits", callback_data: "spin_50" },
-          { text: "💰 100 Credits", callback_data: "spin_100" },
+          { text: "🔄 10 Credits", callback_data: "spin_10" },
+          { text: "🔄 50 Credits", callback_data: "spin_50" },
+          { text: "🔄 100 Credits", callback_data: "spin_100" },
         ],
       ],
     },
@@ -393,15 +351,9 @@ bot.command("game", (ctx) => {
 
   let message = `🎮 *GAME INFO & STATS* 🎮\n\n`;
   message += `🎰 *Global Jackpot:* ${currentJackpot} Credits\n\n`;
-  message += `📊 *Your Stats:*\n`;
-  message += `🎲 Total Spins: ${user.totalSpins || 0}\n`;
+  message += `📊 *Your Stats:*\n\n`;
   message += `🏆 Total Wins: ${user.totalWins || 0}\n`;
-  message += `💰 Total Winnings: ${user.totalWinnings || 0} Credits\n`;
-  message += `📈 Win Rate: ${
-    user.totalSpins
-      ? Math.round(((user.totalWins || 0) / user.totalSpins) * 100)
-      : 0
-  }%\n\n`;
+  message += `💰 Total Winnings: ${user.totalWinnings || 0} Credits\n\n`;
   message += `*Quick Actions:*`;
 
   ctx.reply(message, {
@@ -763,7 +715,12 @@ bot.action(/^buy_upgrade_(\d+)$/, async (ctx) => {
 });
 
 // Reusable spin logic
-const executeSpin = async (ctx: any, bet: number) => {
+// If messageToEdit is provided, edits that message instead of sending a new one
+const executeSpin = async (
+  ctx: any,
+  bet: number,
+  messageToEdit?: { chat_id: number; message_id: number }
+) => {
   const user = getUser(ctx.from!.id);
   const lang = user.language as Language;
 
@@ -791,6 +748,39 @@ const executeSpin = async (ctx: any, bet: number) => {
   user.isSpinning = true;
   user.spinLockTime = Date.now();
   updateUser(user);
+
+  // Process daily login bonus on first spin of the day
+  const dailyResult = processDailyLogin(user);
+  let dailyBonusMessage = "";
+
+  console.log("Daily bonus check:", {
+    claimed: dailyResult.claimed,
+    alreadyClaimed: dailyResult.alreadyClaimed,
+    streak: dailyResult.consecutiveDays,
+  });
+
+  if (dailyResult.claimed) {
+    // Award the bonus
+    user.balance += dailyResult.bonus;
+    updateUser(user);
+
+    const emoji = getDailyBonusEmoji(dailyResult.consecutiveDays);
+
+    if (dailyResult.streakBroken) {
+      dailyBonusMessage = t(lang, "daily_bonus_streak_broken", {
+        emoji,
+        bonus: dailyResult.bonus,
+        balance: user.balance,
+      });
+    } else {
+      dailyBonusMessage = t(lang, "daily_bonus_claimed", {
+        emoji,
+        bonus: dailyResult.bonus,
+        streak: dailyResult.consecutiveDays,
+        balance: user.balance,
+      });
+    }
+  }
 
   // Now check balance (with lock held)
   if (user.balance < bet) {
@@ -840,12 +830,41 @@ const executeSpin = async (ctx: any, bet: number) => {
       { text: `🔁 ${bet} Credits`, callback_data: `spin_${bet}` },
     ]);
 
-    const msg = await ctx.reply(spinningText, {
-      parse_mode: "Markdown",
-      reply_markup: {
-        inline_keyboard: animationButtons,
-      },
-    });
+    // If we have a message to edit (reroll), edit it; otherwise send a new message
+    let chatId: number;
+    let messageId: number;
+
+    if (messageToEdit) {
+      // Edit the existing message for reroll
+      chatId = messageToEdit.chat_id;
+      messageId = messageToEdit.message_id;
+      try {
+        await ctx.telegram.editMessageText(
+          chatId,
+          messageId,
+          undefined,
+          spinningText,
+          {
+            parse_mode: "Markdown",
+            reply_markup: {
+              inline_keyboard: animationButtons,
+            },
+          }
+        );
+      } catch (e) {
+        // Ignore if message content is the same
+      }
+    } else {
+      // Send a new message for first spin
+      const msg = await ctx.reply(spinningText, {
+        parse_mode: "Markdown",
+        reply_markup: {
+          inline_keyboard: animationButtons,
+        },
+      });
+      chatId = msg.chat.id;
+      messageId = msg.message_id;
+    }
 
     // Animation loop - show 3 intermediate spins
     for (let i = 0; i < 3; i++) {
@@ -854,8 +873,8 @@ const executeSpin = async (ctx: any, bet: number) => {
       const tempBoard = `${tempResult[0].emoji} | ${tempResult[1].emoji} | ${tempResult[2].emoji}`;
       try {
         await ctx.telegram.editMessageText(
-          msg.chat.id,
-          msg.message_id,
+          chatId,
+          messageId,
           undefined,
           t(lang, "spin_spinning").replace("❓ | ❓ | ❓", tempBoard),
           {
@@ -1041,6 +1060,11 @@ const executeSpin = async (ctx: any, bet: number) => {
       message += gamificationMessages;
     }
 
+    // Add daily bonus message if claimed on this spin
+    if (dailyBonusMessage) {
+      message += `\n\n${dailyBonusMessage}`;
+    }
+
     // Build button rows - always include repeat button row to prevent flickering
     const buttonRow = [
       { text: t(lang, "button_spin_10"), callback_data: "spin_10" },
@@ -1074,18 +1098,12 @@ const executeSpin = async (ctx: any, bet: number) => {
     }
 
     // Edit the message with final result and buttons
-    await ctx.telegram.editMessageText(
-      msg.chat.id,
-      msg.message_id,
-      undefined,
-      message,
-      {
-        parse_mode: "Markdown",
-        reply_markup: {
-          inline_keyboard: buttons,
-        },
-      }
-    );
+    await ctx.telegram.editMessageText(chatId, messageId, undefined, message, {
+      parse_mode: "Markdown",
+      reply_markup: {
+        inline_keyboard: buttons,
+      },
+    });
   } finally {
     // Release spin lock
     user.isSpinning = false;
@@ -1163,7 +1181,15 @@ bot.command("jackpot", (ctx) => {
 
 bot.action(/^spin_(\d+)$/, (ctx) => {
   const bet = Number(ctx.match[1]);
-  executeSpin(ctx, bet);
+  // Get the message that was clicked to edit it instead of sending a new one
+  const message = ctx.callbackQuery?.message;
+  const messageToEdit = message
+    ? {
+        chat_id: message.chat.id,
+        message_id: message.message_id,
+      }
+    : undefined;
+  executeSpin(ctx, bet, messageToEdit);
   ctx.answerCbQuery(); // Stop the loading animation on the button
 });
 
@@ -1551,7 +1577,9 @@ Pas d'argent réel - Juste du fun! 🎲`,
 }
 
 // Run setup after bot launches
-setupBotInfo();
+// NOTE: Commented out to avoid Telegram rate limiting during development
+// Only run this once manually when you need to update bot info
+// setupBotInfo();
 
 // Payment button handlers
 const packages = {
