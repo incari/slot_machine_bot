@@ -1,5 +1,5 @@
 # Build stage
-FROM node:18-alpine AS builder
+FROM node:24-alpine AS builder
 
 # Install build dependencies for better-sqlite3
 RUN apk add --no-cache python3 make g++
@@ -19,7 +19,7 @@ COPY . .
 RUN yarn build
 
 # Production stage
-FROM node:18-alpine
+FROM node:24-alpine
 
 # Install build dependencies for better-sqlite3 (needed for native module)
 RUN apk add --no-cache python3 make g++

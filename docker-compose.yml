@@ -1,8 +1,7 @@
 services:
   slot-bot:
-    # Use the image built by GitHub Actions
-    image: ghcr.io/incari/slot_machine_bot:latest
-    # build: . # Uncomment if you want to build locally instead
+    image: ghcr.io/incari/slot-bot:latest
+    # build: .  # Uncomment to build locally instead
     container_name: slot-bot
     restart: unless-stopped
     environment:
@@ -10,6 +9,7 @@ services:
       - ADMIN_ID=${ADMIN_ID}
       - DATA_DIR=/app/data
     volumes:
-      # SQLite database stored in ./data/slotbot.db (auto-created on first run)
-      - ./data:/app/data
+      # SQLite database stored in /app/data/slotbot.db (auto-created on first run)
+      # For Unraid: /mnt/user/appdata/slot-bot/config:/app/data
+      - ./config/data:/app/data
 

@@ -2,3 +2,12 @@
 node_modules
 users.json
 dist/
+
+# Database files
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+*.sqlite
+*.sqlite3
+config/data/
